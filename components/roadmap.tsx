@@ -447,7 +447,7 @@ export function Roadmap() {
                   key={i}
                   d={d}
                   fill="none"
-                  className="stroke-border dark:stroke-white/[0.2]"
+                  className="stroke-[#e4e4e7] dark:stroke-[#333]"
                   strokeWidth={2.5}
                   strokeDasharray="6 4"
                 />
