@@ -137,4 +137,8 @@
   html {
     @apply font-sans;
   }
+  ::selection {
+    background-color: var(--foreground);
+    color: var(--background);
+  }
 }
