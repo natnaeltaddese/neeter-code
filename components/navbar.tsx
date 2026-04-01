@@ -11,6 +11,7 @@ import {
   IconX,
 } from "@tabler/icons-react"
 import { cn } from "@/lib/utils"
+import { buttonVariants } from "@/components/ui/button"
 
 const navLinks = [
   { label: "Courses", href: "/courses" },
@@ -69,8 +70,8 @@ export function Navbar() {
 
   return (
     <div className="sticky top-0 z-40 w-full px-4 pt-4">
-      <header className="relative mx-auto max-w-5xl overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.12),inset0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md dark:bg-black/[0.02] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4),inset0_1px_0_rgba(255,255,255,0.04)]">
-        <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-b from-white/8 via-transparent to-black/5" />
+      <header className="relative mx-auto max-w-5xl overflow-hidden rounded-xl border border-border/40 bg-[#f5f5f6]/90 shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)] backdrop-blur-sm dark:bg-background/90 dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]">
+        <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-b from-white/[0.02] to-transparent" />
 
         <div className="relative flex h-14 items-center justify-between gap-4 px-4">
           {/* Logo */}
@@ -78,7 +79,9 @@ export function Navbar() {
             href="/"
             className="font-heading text-lg font-bold tracking-[-0.03em]"
           >
-            <span className="bg-clip-text text-transparent bg-[linear-gradient(175deg,#262626_0%,#383838_30%,#222_60%,#333_100%)] dark:bg-[linear-gradient(175deg,#8a8a8a_0%,#a0a0a0_30%,#808080_60%,#999_100%)]">NeetCode</span>
+            <span className="bg-[linear-gradient(175deg,#262626_0%,#383838_30%,#222_60%,#333_100%)] bg-clip-text text-transparent dark:bg-[linear-gradient(175deg,#8a8a8a_0%,#a0a0a0_30%,#808080_60%,#999_100%)]">
+              NeetCode
+            </span>
           </Link>
 
           {/* Center nav — hidden on mobile */}
@@ -88,14 +91,17 @@ export function Navbar() {
           <div className="hidden items-center gap-2 md:flex">
             <ThemeToggle />
             <Link
-              href="/signin"
-              className="inline-flex h-7 shrink-0 items-center justify-center rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] font-medium whitespace-nowrap transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-expanded:bg-muted aria-expanded:text-foreground"
+              href="/pro"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "rounded-lg"
+              )}
             >
               Sign In
             </Link>
             <Link
               href="/pro"
-              className="inline-flex h-7 shrink-0 items-center justify-center gap-1.5 rounded-[min(var(--radius-md),12px)] bg-primary px-2.5 text-[0.8rem] font-medium whitespace-nowrap text-primary-foreground transition-all outline-none select-none hover:bg-primary/80 focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50"
+              className={cn(buttonVariants({ size: "sm" }), "rounded-lg")}
             >
               <IconBolt className="size-3.5" />
               Pro
@@ -142,14 +148,16 @@ export function Navbar() {
                 <Link
                   href="/signin"
                   onClick={() => setMobileOpen(false)}
-                  className="inline-flex h-7 shrink-0 items-center justify-center rounded-[min(var(--radius-md),12px)] border border-border bg-background px-2.5 text-[0.8rem] font-medium whitespace-nowrap transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-expanded:bg-muted aria-expanded:text-foreground"
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" })
+                  )}
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/pro"
                   onClick={() => setMobileOpen(false)}
-                  className="inline-flex h-7 shrink-0 items-center justify-center gap-1.5 rounded-[min(var(--radius-md),12px)] bg-primary px-2.5 text-[0.8rem] font-medium whitespace-nowrap text-primary-foreground transition-all outline-none select-none hover:bg-primary/80 focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50"
+                  className={cn(buttonVariants({ size: "sm" }), "rounded-lg")}
                 >
                   <IconBolt className="size-3.5" />
                   Check out Pro
