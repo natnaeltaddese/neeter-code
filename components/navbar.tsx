@@ -10,7 +10,6 @@ import {
   IconBolt,
   IconX,
 } from "@tabler/icons-react"
-import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 const navLinks = [
@@ -28,22 +27,27 @@ function ThemeToggle() {
   if (!mounted) return <div className="size-8" />
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
+    <button
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
       aria-label="Toggle theme"
+      className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-sm font-medium whitespace-nowrap transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-expanded:bg-muted aria-expanded:text-foreground"
     >
       {resolvedTheme === "dark" ? (
         <IconSun className="size-4" />
       ) : (
         <IconMoon className="size-4" />
       )}
-    </Button>
+    </button>
   )
 }
 
-function NavLinks({ className, onClick }: { className?: string; onClick?: () => void }) {
+function NavLinks({
+  className,
+  onClick,
+}: {
+  className?: string
+  onClick?: () => void
+}) {
   return (
     <nav className={cn("flex items-center gap-1", className)}>
       {navLinks.map((link) => (
@@ -51,7 +55,7 @@ function NavLinks({ className, onClick }: { className?: string; onClick?: () => 
           key={link.href}
           href={link.href}
           onClick={onClick}
-          className="inline-flex h-9 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium outline-none transition-[color,box-shadow] hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1"
+          className="group inline-flex h-9 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-white/10 hover:text-accent-foreground focus:bg-white/10 focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50"
         >
           {link.label}
         </Link>
@@ -65,15 +69,16 @@ export function Navbar() {
 
   return (
     <div className="sticky top-0 z-40 w-full px-4 pt-4">
-      <header className="mx-auto max-w-5xl overflow-hidden rounded-xl border bg-popover text-popover-foreground shadow">
-        {/* Main row */}
-        <div className="flex h-14 items-center justify-between px-4">
+      <header className="relative mx-auto max-w-5xl overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.12),inset0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md dark:bg-black/[0.02] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4),inset0_1px_0_rgba(255,255,255,0.04)]">
+        <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-b from-white/8 via-transparent to-black/5" />
+
+        <div className="relative flex h-14 items-center justify-between gap-4 px-4">
           {/* Logo */}
           <Link
             href="/"
-            className="font-mono text-lg font-semibold tracking-tight text-foreground"
+            className="font-heading text-lg font-bold tracking-[-0.03em]"
           >
-            {"{N}"}
+            <span className="bg-clip-text text-transparent bg-[linear-gradient(175deg,#262626_0%,#383838_30%,#222_60%,#333_100%)] dark:bg-[linear-gradient(175deg,#8a8a8a_0%,#a0a0a0_30%,#808080_60%,#999_100%)]">NeetCode</span>
           </Link>
 
           {/* Center nav — hidden on mobile */}
@@ -82,32 +87,35 @@ export function Navbar() {
           {/* Right actions — hidden on mobile */}
           <div className="hidden items-center gap-2 md:flex">
             <ThemeToggle />
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/signin">Sign In</Link>
-            </Button>
-            <Button size="sm" asChild>
-              <Link href="/pro" className="flex items-center gap-1.5">
-                <IconBolt className="size-3.5" />
-                Pro
-              </Link>
-            </Button>
+            <Link
+              href="/signin"
+              className="inline-flex h-7 shrink-0 items-center justify-center rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] font-medium whitespace-nowrap transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-expanded:bg-muted aria-expanded:text-foreground"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/pro"
+              className="inline-flex h-7 shrink-0 items-center justify-center gap-1.5 rounded-[min(var(--radius-md),12px)] bg-primary px-2.5 text-[0.8rem] font-medium whitespace-nowrap text-primary-foreground transition-all outline-none select-none hover:bg-primary/80 focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50"
+            >
+              <IconBolt className="size-3.5" />
+              Pro
+            </Link>
           </div>
 
           {/* Mobile: theme toggle + hamburger */}
           <div className="flex items-center gap-1 md:hidden">
             <ThemeToggle />
-            <Button
-              variant="ghost"
-              size="icon"
+            <button
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               onClick={() => setMobileOpen((o) => !o)}
+              className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-sm font-medium whitespace-nowrap transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-expanded:bg-muted aria-expanded:text-foreground"
             >
               {mobileOpen ? (
                 <IconX className="size-4" />
               ) : (
                 <IconMenu2 className="size-4" />
               )}
-            </Button>
+            </button>
           </div>
         </div>
 
@@ -125,27 +133,27 @@ export function Navbar() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className="flex flex-col gap-1 rounded-sm p-2 text-sm outline-none transition-all hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1"
+                  className="flex flex-col gap-1 rounded-sm p-2 text-sm transition-all outline-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1"
                 >
                   {link.label}
                 </Link>
               ))}
-              <div className="mt-1 flex flex-col gap-2 border-t pt-2.5 pb-1 px-1">
-                <Button variant="outline" size="sm" asChild>
-                  <Link href="/signin" onClick={() => setMobileOpen(false)}>
-                    Sign In
-                  </Link>
-                </Button>
-                <Button size="sm" asChild>
-                  <Link
-                    href="/pro"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex items-center justify-center gap-1.5"
-                  >
-                    <IconBolt className="size-3.5" />
-                    Check out Pro
-                  </Link>
-                </Button>
+              <div className="mt-1 flex flex-col gap-2 border-t px-1 pt-2.5 pb-1">
+                <Link
+                  href="/signin"
+                  onClick={() => setMobileOpen(false)}
+                  className="inline-flex h-7 shrink-0 items-center justify-center rounded-[min(var(--radius-md),12px)] border border-border bg-background px-2.5 text-[0.8rem] font-medium whitespace-nowrap transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-expanded:bg-muted aria-expanded:text-foreground"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/pro"
+                  onClick={() => setMobileOpen(false)}
+                  className="inline-flex h-7 shrink-0 items-center justify-center gap-1.5 rounded-[min(var(--radius-md),12px)] bg-primary px-2.5 text-[0.8rem] font-medium whitespace-nowrap text-primary-foreground transition-all outline-none select-none hover:bg-primary/80 focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50"
+                >
+                  <IconBolt className="size-3.5" />
+                  Check out Pro
+                </Link>
               </div>
             </div>
           </div>
