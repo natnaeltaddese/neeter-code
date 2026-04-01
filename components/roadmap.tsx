@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useEffect, useState, useCallback } from "react"
+import { useRef, useEffect, useState, useCallback, useMemo } from "react"
 import { cn } from "@/lib/utils"
 
 // --- Data ---
@@ -295,7 +295,7 @@ function NodeCard({ topic, className }: { topic: Topic; className?: string }) {
         "w-[180px] rounded-xl border border-border/40 bg-[#f5f5f6] p-3 lg:w-[220px]",
         "shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)]",
         "dark:bg-white/[0.02] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]",
-        "transition-all duration-300 hover:border-border/60 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
+        "transition-[border-color,box-shadow] duration-300 hover:border-border/60 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
         "dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)]",
         className
       )}
@@ -329,6 +329,34 @@ function NodeCard({ topic, className }: { topic: Topic; className?: string }) {
 }
 
 const COLLAPSED_HEIGHT = 520
+
+function throttle<T extends (...args: unknown[]) => unknown>(
+  fn: T,
+  delay: number
+): (...args: Parameters<T>) => void {
+  let lastCall = 0
+  let scheduled = false
+  let lastArgs: Parameters<T> | null = null
+
+  return (...args: Parameters<T>) => {
+    const now = Date.now()
+    const timeSinceLastCall = now - lastCall
+
+    if (timeSinceLastCall >= delay) {
+      lastCall = now
+      fn(...args)
+    } else if (!scheduled) {
+      scheduled = true
+      const remaining = delay - timeSinceLastCall
+      setTimeout(() => {
+        scheduled = false
+        lastCall = Date.now()
+        if (lastArgs) fn(...lastArgs)
+      }, remaining)
+    }
+    lastArgs = args
+  }
+}
 
 export function Roadmap() {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -382,15 +410,20 @@ export function Roadmap() {
     setPaths(newPaths)
   }, [])
 
+  const throttledUpdatePaths = useMemo(
+    () => throttle(updatePaths, 16),
+    [updatePaths]
+  )
+
   useEffect(() => {
-    const frame = requestAnimationFrame(updatePaths)
-    const observer = new ResizeObserver(updatePaths)
+    const frame = requestAnimationFrame(throttledUpdatePaths)
+    const observer = new ResizeObserver(throttledUpdatePaths)
     if (containerRef.current) observer.observe(containerRef.current)
     return () => {
       cancelAnimationFrame(frame)
       observer.disconnect()
     }
-  }, [updatePaths])
+  }, [throttledUpdatePaths])
 
   // Recalculate SVG paths after expand/collapse transition
   useEffect(() => {
@@ -439,7 +472,7 @@ export function Roadmap() {
           {/* Desktop tree */}
           <div ref={containerRef} className="relative hidden md:block">
             <svg
-              className="pointer-events-none absolute inset-0 h-full w-full"
+              className="pointer-events-none absolute inset-0 h-full w-full will-change-transform"
               style={{ zIndex: 0 }}
             >
               {paths.map((d, i) => (
