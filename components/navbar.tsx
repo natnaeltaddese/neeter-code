@@ -14,9 +14,9 @@ import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
 const navLinks = [
-  { label: "Courses", href: "/courses" },
-  { label: "Practice", href: "/practice" },
-  { label: "Roadmap", href: "/roadmap" },
+  { label: "Courses", href: "#" },
+  { label: "Practice", href: "#" },
+  { label: "Roadmap", href: "#" },
 ]
 
 function ThemeToggle() {
@@ -91,7 +91,7 @@ export function Navbar() {
           <div className="hidden items-center gap-2 md:flex">
             <ThemeToggle />
             <Link
-              href="/pro"
+              href="#"
               className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
                 "rounded-lg"
@@ -100,7 +100,7 @@ export function Navbar() {
               Sign In
             </Link>
             <Link
-              href="/pro"
+              href="#"
               className={cn(buttonVariants({ size: "sm" }), "rounded-lg")}
             >
               <IconBolt className="size-3.5" />
@@ -146,7 +146,7 @@ export function Navbar() {
               ))}
               <div className="mt-1 flex flex-col gap-2 border-t px-1 pt-2.5 pb-1">
                 <Link
-                  href="/signin"
+                  href="#"
                   onClick={() => setMobileOpen(false)}
                   className={cn(
                     buttonVariants({ variant: "outline", size: "sm" })
@@ -155,7 +155,7 @@ export function Navbar() {
                   Sign In
                 </Link>
                 <Link
-                  href="/pro"
+                  href="#"
                   onClick={() => setMobileOpen(false)}
                   className={cn(buttonVariants({ size: "sm" }), "rounded-lg")}
                 >

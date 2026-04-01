@@ -62,14 +62,14 @@ export function Hero() {
               "text-[3.25rem] leading-[0.88] tracking-[-0.035em]",
               "sm:text-[4.5rem]",
               "md:text-[5.5rem]",
-              "lg:text-[7rem] lg:tracking-[-0.045em]",
+              "lg:text-[7rem] lg:tracking-[-0.045em]"
             )}
           >
             <span
               className={cn(
                 "bg-clip-text text-transparent",
                 "bg-[linear-gradient(175deg,#2a2a2a_0%,#484848_20%,#222_45%,#434343_70%,#2c2c2c_100%)]",
-                "dark:bg-[linear-gradient(175deg,#7a7a7a_0%,#b8b8b8_20%,#686868_45%,#adadad_70%,#757575_100%)]",
+                "dark:bg-[linear-gradient(175deg,#7a7a7a_0%,#b8b8b8_20%,#686868_45%,#adadad_70%,#757575_100%)]"
               )}
             >
               Prepare
@@ -83,7 +83,7 @@ export function Hero() {
               pattern you need to crack FAANG interviews.
             </p>
             <Link
-              href="/courses"
+              href="#"
               className="w-fit text-sm font-semibold text-foreground underline decoration-primary decoration-2 underline-offset-[6px] transition-all hover:decoration-primary/60"
             >
               Start learning for free

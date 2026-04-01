@@ -5,12 +5,12 @@ const footerLinks = {
   links: {
     title: "Links",
     items: [
-      { label: "Blind 75", href: "/blind-75", external: false },
-      { label: "NeetCode 150", href: "/neetcode-150", external: false },
-      { label: "NeetCode 250", href: "/neetcode-250", external: false },
+      { label: "Blind 75", href: "#", external: false },
+      { label: "NeetCode 150", href: "#", external: false },
+      { label: "NeetCode 250", href: "#", external: false },
       {
         label: "How to use NeetCode Effectively",
-        href: "/guide",
+        href: "#",
         external: false,
       },
     ],
@@ -44,8 +44,8 @@ const footerLinks = {
   legal: {
     title: "Legal",
     items: [
-      { label: "Privacy Policy", href: "/privacy", external: false },
-      { label: "Terms of Service", href: "/terms", external: false },
+      { label: "Privacy Policy", href: "#", external: false },
+      { label: "Terms of Service", href: "#", external: false },
     ],
   },
 }

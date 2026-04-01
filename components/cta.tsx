@@ -74,7 +74,7 @@ export function CTA() {
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:gap-4">
               {/* Primary button */}
               <a
-                href="/practice"
+                href="#"
                 className={cn(
                   "inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl px-8 text-[0.9375rem] font-semibold",
                   "bg-primary text-primary-foreground",
