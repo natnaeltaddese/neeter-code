@@ -130,7 +130,7 @@ function TestimonialCard({
   return (
     <Testimonial
       className={cn(
-        "h-auto rounded-xl border border-border/40 bg-[#f5f5f6] backdrop-blur-sm",
+        "h-auto rounded-xl border border-border/40 bg-[#f5f5f6]",
         "shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)]",
         "dark:bg-white/[0.02] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]",
         "transition-[border-color,box-shadow] duration-300 hover:border-border/60 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",

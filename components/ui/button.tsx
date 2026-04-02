@@ -13,13 +13,13 @@ const buttonVariants = cva(
         default:
           "border-primary/80 bg-primary text-primary-foreground shadow-[0_2px_12px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.15)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)] dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.4)]",
         outline:
-          "border-border/40 bg-[#f5f5f6] font-medium shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)] backdrop-blur-sm hover:border-border/60 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] dark:bg-white/[0.04] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)] dark:hover:bg-white/[0.08] dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)]",
+          "border-border/40 bg-[#f5f5f6] font-medium shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)] hover:border-border/60 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] dark:bg-white/[0.04] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)] dark:hover:bg-white/[0.08] dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)]",
         secondary:
-          "border-border/40 bg-secondary text-secondary-foreground shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.2)] backdrop-blur-sm hover:border-border/60 hover:bg-secondary/80 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.1)] dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)]",
+          "border-border/40 bg-secondary text-secondary-foreground shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.2)] hover:border-border/60 hover:bg-secondary/80 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.1)] dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)]",
         ghost:
-          "font-medium backdrop-blur-sm hover:bg-white/[0.08] hover:text-foreground aria-expanded:bg-white/[0.08] aria-expanded:text-foreground dark:hover:bg-white/[0.06]",
+          "font-medium hover:bg-white/[0.08] hover:text-foreground aria-expanded:bg-white/[0.08] aria-expanded:text-foreground dark:hover:bg-white/[0.06]",
         destructive:
-          "border-border/40 bg-destructive/10 text-destructive shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm hover:border-border/60 hover:bg-destructive/20 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)] dark:hover:bg-destructive/30 dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)] dark:focus-visible:ring-destructive/40",
+          "border-border/40 bg-destructive/10 text-destructive shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.06)] hover:border-border/60 hover:bg-destructive/20 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)] dark:hover:bg-destructive/30 dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)] dark:focus-visible:ring-destructive/40",
         link: "font-medium text-primary underline-offset-4 hover:underline",
       },
       size: {
