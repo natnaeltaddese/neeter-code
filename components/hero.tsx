@@ -58,7 +58,7 @@ export function Hero() {
           <div className="animate-[fade-up_0.7s_ease_both]">
             <span
               className={cn(
-                "block font-heading font-bold",
+                "block pl-1 font-heading font-bold md:pl-2",
                 "text-[1.5rem] leading-[0.95] tracking-[-0.03em]",
                 "sm:text-[2rem]",
                 "md:text-[2.5rem]",
