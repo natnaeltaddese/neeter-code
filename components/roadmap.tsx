@@ -136,11 +136,6 @@ const rows: string[][] = [
   ["tries", "heap", "backtracking"],
   ["graphs"],
   ["adv-graphs", "1d-dp"],
-  ["2d-dp"],
-  ["greedy"],
-  ["intervals"],
-  ["math-geo"],
-  ["bit-manipulation"],
 ]
 
 const edges: [string, string][] = [
@@ -157,12 +152,6 @@ const edges: [string, string][] = [
   ["backtracking", "graphs"],
   ["graphs", "adv-graphs"],
   ["graphs", "1d-dp"],
-  ["adv-graphs", "2d-dp"],
-  ["1d-dp", "2d-dp"],
-  ["2d-dp", "greedy"],
-  ["greedy", "intervals"],
-  ["intervals", "math-geo"],
-  ["math-geo", "bit-manipulation"],
 ]
 
 // Mobile tree hierarchy (folder-style nesting)
@@ -187,25 +176,6 @@ const mobileTree: TreeNode[] = [
   {
     id: "graphs",
     children: [{ id: "adv-graphs" }, { id: "1d-dp" }],
-  },
-  {
-    id: "2d-dp",
-    children: [
-      {
-        id: "greedy",
-        children: [
-          {
-            id: "intervals",
-            children: [
-              {
-                id: "math-geo",
-                children: [{ id: "bit-manipulation" }],
-              },
-            ],
-          },
-        ],
-      },
-    ],
   },
 ]
 
@@ -515,21 +485,29 @@ export function Roadmap() {
           </div>
         </div>
 
-        {/* Fade overlay + expand button */}
+        {/* Fade overlay */}
+        <div
+          className={cn(
+            "absolute inset-x-0 bottom-0 z-10 h-32 bg-gradient-to-t from-background from-20% via-background/80 to-transparent",
+            expanded && "hidden"
+          )}
+        />
+
+        {/* Full roadmap button */}
         {!expanded && (
-          <div className="absolute inset-x-0 bottom-0 z-10 flex flex-col items-center bg-gradient-to-t from-background from-20% via-background/80 to-transparent pt-32 pb-6">
+          <div className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2">
             <button
               onClick={() => setExpanded(true)}
               className={cn(
                 "inline-flex h-9 items-center gap-2 rounded-xl px-5 text-sm font-medium",
-                "border border-border/40 bg-[#f5f5f6]",
+                "border border-border/40 bg-[#f5f5f6]/80 backdrop-blur-sm",
                 "shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)]",
                 "dark:bg-white/[0.04] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]",
                 "transition-all duration-200 hover:border-border/60 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
                 "dark:hover:bg-white/[0.08] dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
               )}
             >
-              Expand full roadmap
+              Expand roadmap
               <svg
                 width="14"
                 height="14"
@@ -542,6 +520,26 @@ export function Roadmap() {
               >
                 <path d="m6 9 6 6 6-6" />
               </svg>
+            </button>
+          </div>
+        )}
+
+        {/* Additional content when expanded */}
+        {expanded && (
+          <div className="mt-8 flex flex-col items-center gap-3">
+            <p className="px-6 text-center text-xs text-muted-foreground">
+              Explore the complete data structures and algorithms roadmap after
+              signing up.
+            </p>
+            <button
+              className={cn(
+                "inline-flex h-9 items-center gap-2 rounded-xl px-5 text-sm font-medium",
+                "border border-transparent bg-primary text-primary-foreground",
+                "shadow-[0_2px_12px_rgba(99,102,241,0.3)]",
+                "transition-all duration-200 hover:shadow-[0_4px_20px_rgba(99,102,241,0.4)]"
+              )}
+            >
+              Full roadmap
             </button>
           </div>
         )}
