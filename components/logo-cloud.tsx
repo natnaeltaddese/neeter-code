@@ -1,54 +1,78 @@
-import Image from "next/image"
-import { InfiniteSlider } from "@/components/ui/infinite-slider"
+import { cn } from "@/lib/utils"
+import googleIcon from "thesvg/google"
+import netflixIcon from "thesvg/netflix"
+import openaiIcon from "thesvg/openai"
+import anthropicIcon from "thesvg/anthropic"
+import nvidiaIcon from "thesvg/nvidia"
+import githubIcon from "thesvg/github"
+import vercelIcon from "thesvg/vercel"
 
-const logos = [
-  { src: "/company/google-color.svg", alt: "Google", width: 80, height: 24 },
-  { src: "/company/meta-color.svg", alt: "Meta", width: 80, height: 24 },
-  { src: "/company/amazon-color.svg", alt: "Amazon", width: 80, height: 24 },
-  {
-    src: "/company/microsoft-color.svg",
-    alt: "Microsoft",
-    width: 90,
-    height: 24,
-  },
-  { src: "/company/netflix-color.svg", alt: "Netflix", width: 80, height: 24 },
-  { src: "/company/openai.svg", alt: "OpenAI", width: 80, height: 24 },
-  { src: "/company/claude-color.svg", alt: "Claude", width: 80, height: 24 },
+// NVIDIA wordmark has white text + green eye — swap white for dark in light mode
+const nvidiaLightSvg = nvidiaIcon.variants.wordmark.replace(
+  /fill:#fff/g,
+  "fill:#1a1a1a"
+)
+
+type LogoMode = "color" | "white" | "mixed"
+
+const logos: { svg: string; lightSvg?: string; title: string; mode: LogoMode }[] = [
+  { svg: googleIcon.variants.wordmark, title: "Google", mode: "color" },
+  { svg: netflixIcon.variants.wordmark, title: "Netflix", mode: "color" },
+  { svg: openaiIcon.variants.wordmark, title: "OpenAI", mode: "white" },
+  { svg: anthropicIcon.variants.wordmark, title: "Anthropic", mode: "white" },
+  { svg: nvidiaIcon.variants.wordmark, lightSvg: nvidiaLightSvg, title: "NVIDIA", mode: "mixed" },
+  { svg: githubIcon.variants.wordmark, title: "GitHub", mode: "white" },
+  { svg: vercelIcon.variants.wordmark, title: "Vercel", mode: "white" },
 ]
+
+const base = "h-5 shrink-0 [&>svg]:h-full [&>svg]:w-auto transition-opacity"
 
 export default function LogoCloud() {
   return (
-    <section className="overflow-hidden border-y border-border/30 py-10">
-      <div className="group relative mx-auto max-w-5xl px-4">
-        <div className="flex flex-col items-center md:flex-row">
-          <div className="md:max-w-44 md:border-r md:border-border/40 md:pr-6">
-            <p className="text-end font-mono text-[11px] font-medium tracking-[0.1em] text-muted-foreground/50 uppercase">
-              Trusted by engineers at
-            </p>
-          </div>
-          <div className="relative py-6 md:w-[calc(100%-11rem)]">
-            <InfiniteSlider speedOnHover={20} speed={40} gap={112}>
-              {logos.map((logo) => (
-                <Image
-                  key={logo.alt}
-                  src={logo.src}
-                  alt={logo.alt}
-                  width={logo.width}
-                  height={logo.height}
-                  className={`h-6 w-auto transition-opacity duration-300 hover:opacity-100 ${logo.alt === "OpenAI" ? "opacity-70 dark:invert" : "opacity-80"}`}
+    <section className="py-10">
+      <div className="mx-auto max-w-5xl px-4">
+        <p className="mb-6 text-center font-mono text-[11px] font-medium tracking-[0.1em] text-muted-foreground/50 uppercase">
+          Trusted by engineers at
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-6 sm:gap-x-14">
+          {logos.map((l) => {
+            if (l.mode === "white") {
+              return (
+                <div
+                  key={l.title}
+                  role="img"
+                  aria-label={l.title}
+                  className={cn(base, "invert opacity-70 hover:opacity-100 dark:invert-0 dark:opacity-60 dark:hover:opacity-90")}
+                  dangerouslySetInnerHTML={{ __html: l.svg }}
                 />
-              ))}
-            </InfiniteSlider>
+              )
+            }
 
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-background to-transparent"
-            />
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-background to-transparent"
-            />
-          </div>
+            if (l.mode === "mixed") {
+              return (
+                <div key={l.title} role="img" aria-label={l.title}>
+                  <div
+                    className={cn(base, "block opacity-70 hover:opacity-100 dark:hidden")}
+                    dangerouslySetInnerHTML={{ __html: l.lightSvg! }}
+                  />
+                  <div
+                    className={cn(base, "hidden opacity-60 hover:opacity-90 dark:block")}
+                    dangerouslySetInnerHTML={{ __html: l.svg }}
+                  />
+                </div>
+              )
+            }
+
+            return (
+              <div
+                key={l.title}
+                role="img"
+                aria-label={l.title}
+                className={cn(base, "opacity-70 hover:opacity-100")}
+                dangerouslySetInnerHTML={{ __html: l.svg }}
+              />
+            )
+          })}
         </div>
       </div>
     </section>
