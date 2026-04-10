@@ -1,6 +1,7 @@
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
 import { useRef, useEffect, useState, useCallback } from "react"
 import { cn } from "@/lib/utils"
 import {
@@ -20,6 +21,7 @@ type Course = {
   duration: string
   difficulty: Difficulty
   image: string
+  slug?: string
 }
 
 type Category = {
@@ -43,6 +45,7 @@ const categories: Category[] = [
         duration: "25 hrs",
         difficulty: "medium",
         image: "/courses/algorithms-beginner.avif",
+        slug: "algorithms-beginner",
       },
       {
         title: "Advanced Algorithms",
@@ -230,8 +233,20 @@ const sidebarItems: { id: Section; label: string; icon: typeof IconSchool }[] =
 
 function CourseCard({ course }: { course: Course }) {
   const difficulty = difficultyConfig[course.difficulty]
+  const Wrapper = course.slug
+    ? ({ children }: { children: React.ReactNode }) => (
+        <Link
+          href={`/courses/${course.slug}`}
+          className="block"
+          aria-label={course.title}
+        >
+          {children}
+        </Link>
+      )
+    : ({ children }: { children: React.ReactNode }) => <>{children}</>
 
   return (
+    <Wrapper>
     <article
       className={cn(
         "group overflow-hidden rounded-xl border border-border/40 bg-[#f5f5f6]",
@@ -293,6 +308,7 @@ function CourseCard({ course }: { course: Course }) {
         </div>
       </div>
     </article>
+    </Wrapper>
   )
 }
 
@@ -344,7 +360,7 @@ function EmptyState({
       <h3 className="text-[0.9375rem] font-semibold tracking-[-0.02em]">
         {title}
       </h3>
-      <p className="mt-1.5 max-w-[28ch] text-[0.8125rem] leading-[1.5] text-muted-foreground text-balance">
+      <p className="mt-1.5 max-w-[28ch] text-[0.8125rem] leading-[1.5] text-balance text-muted-foreground">
         {description}
       </p>
     </div>
@@ -380,9 +396,7 @@ export default function CoursesPage() {
         if (isClickScrolling.current) return
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            const id = elements.find(
-              ([, el]) => el === entry.target
-            )?.[0]
+            const id = elements.find(([, el]) => el === entry.target)?.[0]
             if (id) setActiveSection(id)
           }
         }
@@ -402,9 +416,9 @@ export default function CoursesPage() {
       {/* Mobile nav */}
       <div
         className={cn(
-          "relative mb-8 rounded-xl border border-border/40 bg-[#f5f5f6] p-1.5 md:hidden",
+          "sticky top-[106px] z-30 mx-auto mb-8 max-w-sm rounded-xl border border-border/40 bg-[#f5f5f6]/90 p-1.5 backdrop-blur-sm md:hidden",
           "shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)]",
-          "dark:bg-white/[0.02] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]"
+          "dark:bg-background/90 dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]"
         )}
       >
         <div className="flex gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -428,9 +442,9 @@ export default function CoursesPage() {
           })}
         </div>
         {/* Left fade */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-6 rounded-l-xl bg-gradient-to-r from-[#f5f5f6] to-transparent dark:from-[rgba(28,28,30,0.9)]" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-6 rounded-l-xl bg-gradient-to-r from-[rgba(245,245,246,0.9)] to-transparent dark:from-[rgba(28,28,30,0.9)]" />
         {/* Right fade */}
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-6 rounded-r-xl bg-gradient-to-l from-[#f5f5f6] to-transparent dark:from-[rgba(28,28,30,0.9)]" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-6 rounded-r-xl bg-gradient-to-l from-[rgba(245,245,246,0.9)] to-transparent dark:from-[rgba(28,28,30,0.9)]" />
       </div>
 
       <div className="flex gap-0 md:gap-10">
