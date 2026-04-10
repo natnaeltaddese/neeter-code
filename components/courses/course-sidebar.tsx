@@ -49,16 +49,24 @@ export function CourseSidebar({ course, onNavigate, className }: Props) {
                       onClick={onNavigate}
                       aria-current={isActive ? "page" : undefined}
                       className={cn(
-                        "group relative flex items-center gap-2.5 rounded-md px-3 py-1.5 text-[0.8125rem] font-medium transition-colors",
+                        "group relative flex items-center gap-2.5 rounded-md border px-3 py-1.5 text-[0.8125rem] font-medium transition-[background-color,border-color,box-shadow,color]",
                         isActive
-                          ? "bg-primary/10 text-primary dark:bg-primary/20"
-                          : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                          ? cn(
+                              "border-border/40 bg-background text-foreground",
+                              "shadow-[0_1px_2px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)]",
+                              "dark:bg-white/[0.06] dark:shadow-[0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]"
+                            )
+                          : "border-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                       )}
                     >
-                      {isActive && (
-                        <span className="absolute inset-y-1 left-0 w-0.5 rounded-full bg-primary" />
-                      )}
-                      <span className="w-6 shrink-0 font-mono text-[10px] text-muted-foreground/80 tabular-nums">
+                      <span
+                        className={cn(
+                          "w-6 shrink-0 font-mono text-[10px] tabular-nums transition-colors",
+                          isActive
+                            ? "text-primary"
+                            : "text-muted-foreground/80"
+                        )}
+                      >
                         {chapter.number}
                       </span>
                       <span className="flex-1 truncate">{chapter.title}</span>
@@ -67,7 +75,14 @@ export function CourseSidebar({ course, onNavigate, className }: Props) {
                           FREE
                         </span>
                       )}
-                      <span className="shrink-0 font-mono text-[10px] text-muted-foreground/70 tabular-nums">
+                      <span
+                        className={cn(
+                          "shrink-0 font-mono text-[10px] tabular-nums transition-colors",
+                          isActive
+                            ? "text-foreground/70"
+                            : "text-muted-foreground/70"
+                        )}
+                      >
                         {chapter.durationMin}m
                       </span>
                     </Link>
