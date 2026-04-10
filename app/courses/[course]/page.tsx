@@ -1,4 +1,5 @@
-import { notFound, redirect } from "next/navigation"
+import { notFound } from "next/navigation"
+import { CoursePageRedirect } from "@/components/courses/course-page-redirect"
 import { getCourse, getFirstChapter } from "@/lib/courses"
 
 type Params = { course: string }
@@ -15,5 +16,7 @@ export default async function CourseOverviewPage({
   const firstChapter = getFirstChapter(courseSlug)
   if (!firstChapter) notFound()
 
-  redirect(`/courses/${courseSlug}/${firstChapter.slug}`)
+  return (
+    <CoursePageRedirect href={`/courses/${courseSlug}/${firstChapter.slug}`} />
+  )
 }
