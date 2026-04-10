@@ -240,78 +240,76 @@ function CourseCard({ course }: { course: Course }) {
       ? `/courses/${course.slug}/${firstChapter.slug}`
       : `/courses/${course.slug}`
     : undefined
-  const Wrapper = href
-    ? ({ children }: { children: React.ReactNode }) => (
-        <Link href={href} className="block" aria-label={course.title}>
-          {children}
-        </Link>
-      )
-    : ({ children }: { children: React.ReactNode }) => <>{children}</>
+  const card = (
+    <article
+      className={cn(
+        "group overflow-hidden rounded-xl border border-border/40 bg-[#f5f5f6]",
+        "shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)]",
+        "dark:bg-white/[0.02] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]",
+        "transition-[border-color,box-shadow] duration-300 hover:border-border/60 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
+        "dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)]",
+        "cursor-pointer"
+      )}
+    >
+      <div className="relative aspect-[16/9] overflow-hidden bg-muted/30">
+        <Image
+          src={course.image}
+          alt={course.title}
+          fill
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      </div>
 
-  return (
-    <Wrapper>
-      <article
-        className={cn(
-          "group overflow-hidden rounded-xl border border-border/40 bg-[#f5f5f6]",
-          "shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)]",
-          "dark:bg-white/[0.02] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]",
-          "transition-[border-color,box-shadow] duration-300 hover:border-border/60 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
-          "dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)]",
-          "cursor-pointer"
-        )}
-      >
-        <div className="relative aspect-[16/9] overflow-hidden bg-muted/30">
-          <Image
-            src={course.image}
-            alt={course.title}
-            fill
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-        </div>
+      <div className="p-4">
+        <h4 className="text-[0.9375rem] leading-[1.3] font-semibold tracking-[-0.02em] text-foreground">
+          {course.title}
+        </h4>
 
-        <div className="p-4">
-          <h4 className="text-[0.9375rem] leading-[1.3] font-semibold tracking-[-0.02em] text-foreground">
-            {course.title}
-          </h4>
+        <p className="mt-1.5 text-[0.8125rem] leading-[1.5] text-muted-foreground">
+          {course.description}
+        </p>
 
-          <p className="mt-1.5 text-[0.8125rem] leading-[1.5] text-muted-foreground">
-            {course.description}
-          </p>
-
-          <div className="mt-3 flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 font-mono text-[11px] text-muted-foreground">
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="opacity-60"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
-              </svg>
-              {course.duration}
-            </span>
-
-            <span className="text-border">&#183;</span>
-
-            <span
-              className={cn(
-                "inline-flex items-center rounded-md px-1.5 py-0.5 font-mono text-[10px] font-medium",
-                difficulty.className
-              )}
+        <div className="mt-3 flex items-center gap-2">
+          <span className="inline-flex items-center gap-1 font-mono text-[11px] text-muted-foreground">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="opacity-60"
             >
-              {difficulty.label}
-            </span>
-          </div>
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            {course.duration}
+          </span>
+
+          <span className="text-border">&#183;</span>
+
+          <span
+            className={cn(
+              "inline-flex items-center rounded-md px-1.5 py-0.5 font-mono text-[10px] font-medium",
+              difficulty.className
+            )}
+          >
+            {difficulty.label}
+          </span>
         </div>
-      </article>
-    </Wrapper>
+      </div>
+    </article>
+  )
+
+  return href ? (
+    <Link href={href} className="block" aria-label={course.title}>
+      {card}
+    </Link>
+  ) : (
+    card
   )
 }
 
