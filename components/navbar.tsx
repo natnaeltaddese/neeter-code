@@ -16,7 +16,7 @@ import { buttonVariants } from "@/components/ui/button"
 const navLinks = [
   { label: "Courses", href: "/courses" },
   { label: "Practice", href: "#" },
-  { label: "Roadmap", href: "#" },
+  { label: "Roadmap", href: "/roadmap" },
 ]
 
 function ThemeToggle() {
