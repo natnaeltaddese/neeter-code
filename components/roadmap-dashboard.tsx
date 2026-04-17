@@ -36,8 +36,8 @@ const COLORS = {
 
 const cardClass = cn(
   "relative overflow-hidden rounded-xl border border-border/40 bg-[#f5f5f6]/90 p-3.5 backdrop-blur-sm will-change-transform",
-  "shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)]",
-  "dark:bg-background/90 dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]"
+  "shadow-[0_20px_56px_-12px_rgba(0,0,0,0.22),0_6px_16px_-4px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.5)]",
+  "dark:bg-background/90 dark:shadow-[0_24px_64px_-12px_rgba(0,0,0,0.75),0_8px_20px_-4px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.04)]"
 )
 
 function CardSheen() {
@@ -468,8 +468,8 @@ export function RoadmapDashboard() {
         aria-expanded={open}
         className={cn(
           "fixed top-20 right-4 z-30 inline-flex size-10 items-center justify-center rounded-xl border border-border/40 bg-[#f5f5f6]/90 text-foreground backdrop-blur-sm will-change-transform transition-colors duration-300 md:hidden",
-          "shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)]",
-          "dark:bg-background/90 dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]",
+          "shadow-[0_20px_56px_-12px_rgba(0,0,0,0.22),0_6px_16px_-4px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.5)]",
+          "dark:bg-background/90 dark:shadow-[0_24px_64px_-12px_rgba(0,0,0,0.75),0_8px_20px_-4px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.04)]",
           "hover:border-border/60"
         )}
       >
@@ -483,10 +483,10 @@ export function RoadmapDashboard() {
       <aside
         aria-label="Progress dashboard"
         className={cn(
-          "fixed top-20 right-4 z-20 flex max-h-[calc(100vh-6rem)] w-[min(320px,calc(100vw-2rem))] flex-col gap-3 overflow-y-auto overscroll-contain pr-0.5",
+          "fixed top-14 right-0 z-20 flex max-h-[calc(100vh-4rem)] w-[min(384px,calc(100vw-0rem))] flex-col gap-3 overflow-y-auto overscroll-contain pr-4 pl-12 pt-6 pb-14",
           "transition-transform duration-200 ease-out",
           open ? "translate-x-0" : "translate-x-[120%] md:translate-x-0",
-          "md:top-24"
+          "md:top-[4.5rem]"
         )}
       >
         <StatsCard />
