@@ -451,14 +451,15 @@ export default function CoursesPage() {
       <div className="flex gap-0 md:gap-10">
         {/* Desktop sidebar */}
         <aside className="hidden w-52 shrink-0 md:block">
-          <nav className="sticky top-[106px]">
-            <div
-              className={cn(
-                "rounded-xl border border-border/40 bg-[#f5f5f6] p-2",
-                "shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)]",
-                "dark:bg-white/[0.02] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]"
-              )}
-            >
+          <nav
+            aria-label="Courses sections"
+            className={cn(
+              "sticky top-[106px] rounded-xl border border-border/40 bg-[#f5f5f6] p-2",
+              "shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)]",
+              "dark:bg-white/[0.02] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]"
+            )}
+          >
+            <div className="flex flex-col gap-0.5">
               {sidebarItems.map((item) => {
                 const isActive = activeSection === item.id
                 return (
@@ -466,14 +467,14 @@ export default function CoursesPage() {
                     key={item.id}
                     onClick={() => scrollToSection(item.id)}
                     className={cn(
-                      "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[0.875rem] transition-colors",
+                      "group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm font-medium transition-colors",
                       isActive
-                        ? "bg-primary/10 text-primary dark:bg-primary/20"
+                        ? "bg-muted text-foreground"
                         : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                     )}
                   >
-                    <item.icon className="size-4" />
-                    {item.label}
+                    <item.icon className="size-4 shrink-0" />
+                    <span className="flex-1 text-left">{item.label}</span>
                   </button>
                 )
               })}
