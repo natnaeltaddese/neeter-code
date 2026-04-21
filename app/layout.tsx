@@ -2,6 +2,8 @@ import { Geist, Geist_Mono, Outfit } from "next/font/google"
 import type { Metadata } from "next"
 import { Analytics } from "@vercel/analytics/next"
 
+import { ThemeProvider } from "@/components/theme-provider"
+import { cn } from "@/lib/utils"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -9,9 +11,6 @@ export const metadata: Metadata = {
   description:
     "Master programming with our curated roadmap and courses. From beginner to expert, build real skills with NeetCode.",
 }
-import { ThemeProvider } from "@/components/theme-provider"
-import { Navbar } from "@/components/navbar"
-import { cn } from "@/lib/utils"
 
 const geistHeading = Geist({ subsets: ["latin"], variable: "--font-heading" })
 
@@ -40,10 +39,7 @@ export default function RootLayout({
       )}
     >
       <body>
-        <ThemeProvider>
-          <Navbar />
-          {children}
-        </ThemeProvider>
+        <ThemeProvider>{children}</ThemeProvider>
         <Analytics />
       </body>
     </html>
