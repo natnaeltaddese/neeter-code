@@ -1,46 +1,17 @@
 "use client"
 
 import Link from "next/link"
-import { useTheme } from "next-themes"
-import { useEffect, useState } from "react"
-import {
-  IconSun,
-  IconMoon,
-  IconMenu2,
-  IconBolt,
-  IconX,
-} from "@tabler/icons-react"
+import { useState } from "react"
+import { IconMenu2, IconBolt, IconX } from "@tabler/icons-react"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 const navLinks = [
   { label: "Courses", href: "/courses" },
   { label: "Practice", href: "/practice" },
   { label: "Roadmap", href: "/roadmap" },
 ]
-
-function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => setMounted(true), [])
-
-  if (!mounted) return <div className="size-8" />
-
-  return (
-    <button
-      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-      aria-label="Toggle theme"
-      className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-sm font-medium whitespace-nowrap transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-expanded:bg-muted aria-expanded:text-foreground"
-    >
-      {resolvedTheme === "dark" ? (
-        <IconSun className="size-4" />
-      ) : (
-        <IconMoon className="size-4" />
-      )}
-    </button>
-  )
-}
 
 function NavLinks({
   className,
