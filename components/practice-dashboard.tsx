@@ -579,14 +579,21 @@ function ProblemTable({
   onToggle: (id: number) => void
 }) {
   if (group.problems.length === 0) return null
+  const solvedCount = group.problems.reduce(
+    (n, p) => n + (solved.has(p.id) ? 1 : 0),
+    0
+  )
   return (
-    <section aria-label={group.title} className="flex flex-col gap-2">
-      <h3 className="text-center text-sm font-semibold tracking-[-0.01em] text-foreground">
-        {group.title}
-      </h3>
-      <div className={cn(cardClass, "overflow-hidden p-0")}>
-        <CardSheen />
-        <div className="relative">
+    <section aria-label={group.title} className={cn(cardClass, "p-0")}>
+      <div className="relative flex h-9 shrink-0 items-center justify-between gap-2 border-b border-border/40 bg-background/30 pr-3 pl-3">
+        <h3 className="text-sm font-semibold tracking-[-0.01em] text-foreground">
+          {group.title}
+        </h3>
+        <span className="font-mono text-[11px] tracking-[0.02em] text-muted-foreground">
+          {solvedCount}/{group.problems.length}
+        </span>
+      </div>
+      <div className="relative">
         <Table>
           <TableHeader>
             <TableRow className="border-border/40 hover:bg-transparent">
@@ -664,7 +671,6 @@ function ProblemTable({
             })}
           </TableBody>
         </Table>
-      </div>
       </div>
     </section>
   )
