@@ -1,4 +1,10 @@
-export type Difficulty = "Easy" | "Medium" | "Hard"
+import {
+  practiceProblemById,
+  practiceProblems,
+  type Difficulty,
+} from "./practice"
+
+export type { Difficulty }
 
 export type Problem = {
   id: string
@@ -7,12 +13,22 @@ export type Problem = {
   difficulty: Difficulty
 }
 
-const PLACEHOLDER: Omit<Problem, "id"> = {
-  number: 1,
-  title: "Design Dynamic Array (Resizable Array)",
-  difficulty: "Easy",
-}
-
 export function getProblem(id: string): Problem {
-  return { id, ...PLACEHOLDER }
+  const problem = practiceProblemById[id]
+  if (!problem) {
+    const fallback = practiceProblems[0]
+    return {
+      id,
+      number: fallback.number,
+      title: fallback.title,
+      difficulty: fallback.difficulty,
+    }
+  }
+
+  return {
+    id: problem.id,
+    number: problem.number,
+    title: problem.title,
+    difficulty: problem.difficulty,
+  }
 }

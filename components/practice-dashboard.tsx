@@ -1,26 +1,32 @@
 "use client"
 
-import Image from "next/image"
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import {
-  IconChevronLeft,
-  IconChevronRight,
-  IconChevronDown,
-  IconDatabase,
-  IconCode,
+  IconArrowsShuffle,
+  IconBolt,
+  IconBookmark,
   IconBox,
   IconBrain,
-  IconCpu,
-  IconSearch,
-  IconLayoutGrid,
-  IconArrowsShuffle,
-  IconTrash,
-  IconHelpCircle,
-  IconFlame,
-  IconTrophy,
+  IconChartBar,
   IconChartLine,
+  IconChevronDown,
+  IconChevronLeft,
+  IconChevronRight,
+  IconCircleCheck,
+  IconCode,
+  IconCpu,
+  IconDatabase,
+  IconFlame,
+  IconHelpCircle,
   IconInfoCircle,
+  IconLayoutGrid,
   IconLock,
+  IconPercentage,
+  IconRefresh,
+  IconSearch,
+  IconTarget,
+  IconTrash,
+  IconTrophy,
 } from "@tabler/icons-react"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
@@ -33,40 +39,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import {
+  practiceLists,
+  practiceProblems,
+  practiceTopicById,
+  practiceTopics,
+  type Difficulty,
+  type PracticeList,
+  type PracticeProblem,
+} from "@/lib/practice"
 
-// ---- shared card surface (matches roadmap-dashboard) ----
-
-const cardClass = cn(
-  "relative overflow-hidden rounded-xl border border-border/40 bg-[#f5f5f6]",
-  "shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)]",
-  "dark:bg-white/[0.02] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]"
-)
-
-function CardSheen() {
-  return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-b from-white/[0.02] to-transparent"
-    />
-  )
-}
-
-// ---- data ----
-
-type Difficulty = "Easy" | "Medium" | "Hard"
-
-type Problem = {
-  id: number
-  title: string
-  difficulty: Difficulty
-  locked?: boolean
-}
-
-type TopicGroup = {
-  id: string
-  title: string
-  problems: Problem[]
-}
+// ---- left-rail categories ----
 
 type Category = {
   id: string
@@ -94,42 +77,87 @@ const categories: Category[] = [
   { id: "databases", label: "Databases", icon: IconDatabase },
 ]
 
-const featured = {
-  description:
-    "Practice coding interview problems across data structures, algorithms, and language fundamentals.",
+// ---- shared card surface ----
+
+const cardClass = cn(
+  "relative overflow-hidden rounded-xl border border-border/40 bg-[#f5f5f6]",
+  "shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)]",
+  "dark:bg-white/[0.02] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]"
+)
+
+function CardSheen() {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-b from-white/[0.02] to-transparent"
+    />
+  )
 }
 
-type TopCard = {
-  id: string
-  title: string
-  subtitle: string
-  image: string
-  href: string
+// ---- accent palette per list ----
+
+type Accent = PracticeList["accent"]
+
+const ACCENT: Record<
+  Accent,
+  {
+    text: string
+    softText: string
+    bar: string
+    dot: string
+    ring: string
+    tint: string
+    glow: string
+  }
+> = {
+  primary: {
+    text: "text-primary",
+    softText: "text-primary/80",
+    bar: "bg-primary",
+    dot: "bg-primary",
+    ring: "ring-primary/60",
+    tint: "bg-primary/10",
+    glow: "shadow-[0_0_0_1px_rgba(137,100,255,0.35),0_8px_28px_-8px_rgba(137,100,255,0.45)]",
+  },
+  emerald: {
+    text: "text-emerald-500",
+    softText: "text-emerald-500/80",
+    bar: "bg-emerald-500",
+    dot: "bg-emerald-500",
+    ring: "ring-emerald-500/60",
+    tint: "bg-emerald-500/10",
+    glow: "shadow-[0_0_0_1px_rgba(16,185,129,0.35),0_8px_28px_-8px_rgba(16,185,129,0.4)]",
+  },
+  amber: {
+    text: "text-amber-500",
+    softText: "text-amber-500/80",
+    bar: "bg-amber-500",
+    dot: "bg-amber-500",
+    ring: "ring-amber-500/60",
+    tint: "bg-amber-500/10",
+    glow: "shadow-[0_0_0_1px_rgba(245,158,11,0.35),0_8px_28px_-8px_rgba(245,158,11,0.4)]",
+  },
+  rose: {
+    text: "text-rose-500",
+    softText: "text-rose-500/80",
+    bar: "bg-rose-500",
+    dot: "bg-rose-500",
+    ring: "ring-rose-500/60",
+    tint: "bg-rose-500/10",
+    glow: "shadow-[0_0_0_1px_rgba(244,63,94,0.35),0_8px_28px_-8px_rgba(244,63,94,0.4)]",
+  },
+  cyan: {
+    text: "text-cyan-500",
+    softText: "text-cyan-500/80",
+    bar: "bg-cyan-500",
+    dot: "bg-cyan-500",
+    ring: "ring-cyan-500/60",
+    tint: "bg-cyan-500/10",
+    glow: "shadow-[0_0_0_1px_rgba(6,182,212,0.35),0_8px_28px_-8px_rgba(6,182,212,0.4)]",
+  },
 }
 
-const topCards: TopCard[] = [
-  {
-    id: "algos-beginner",
-    title: "Algorithms for Beginners",
-    subtitle: "25 hrs · Medium",
-    image: "/courses/algorithms-beginner.avif",
-    href: "/courses/algorithms-beginner",
-  },
-  {
-    id: "algos-advanced",
-    title: "Advanced Algorithms",
-    subtitle: "25 hrs · Hard",
-    image: "/courses/algorithms-advanced.avif",
-    href: "/courses",
-  },
-  {
-    id: "python-interview",
-    title: "Python for Coding",
-    subtitle: "8 hrs · Easy",
-    image: "/courses/python-interview.avif",
-    href: "/courses",
-  },
-]
+// ---- difficulty styles ----
 
 const COLORS = {
   Easy: "rgb(16 185 129)",
@@ -143,55 +171,37 @@ const DIFF_TEXT: Record<Difficulty, string> = {
   Hard: "text-red-500",
 }
 
-const groups: TopicGroup[] = [
-  {
-    id: "implement-ds",
-    title: "Implement Data Structures",
-    problems: [
-      { id: 1, title: "Design Dynamic Array (Resizable Array)", difficulty: "Easy" },
-      { id: 2, title: "Design Singly Linked List", difficulty: "Easy" },
-      { id: 3, title: "Design Double-ended Queue", difficulty: "Easy", locked: true },
-      { id: 4, title: "Design Binary Search Tree", difficulty: "Medium", locked: true },
-      { id: 5, title: "Design Hash Table", difficulty: "Medium", locked: true },
-      { id: 6, title: "Design Heap", difficulty: "Medium", locked: true },
-      { id: 7, title: "Design Graph", difficulty: "Medium", locked: true },
-      { id: 8, title: "Design Disjoint Set (Union-Find)", difficulty: "Medium", locked: true },
-      { id: 9, title: "Design Segment Tree", difficulty: "Hard", locked: true },
-    ],
-  },
-  {
-    id: "sorting",
-    title: "Sorting",
-    problems: [
-      { id: 10, title: "Insertion Sort", difficulty: "Easy" },
-      { id: 11, title: "Merge Sort", difficulty: "Medium", locked: true },
-      { id: 12, title: "Quick Sort", difficulty: "Medium", locked: true },
-    ],
-  },
-  {
-    id: "graphs",
-    title: "Graphs",
-    problems: [
-      { id: 13, title: "Matrix Depth-First Search", difficulty: "Medium", locked: true },
-      { id: 14, title: "Matrix Breadth-First Search", difficulty: "Medium", locked: true },
-      { id: 15, title: "Dijkstra's Algorithm", difficulty: "Medium" },
-      { id: 16, title: "Prim's Algorithm", difficulty: "Hard", locked: true },
-      { id: 17, title: "Kruskal's Algorithm", difficulty: "Hard", locked: true },
-      { id: 18, title: "Topological Sort", difficulty: "Medium", locked: true },
-    ],
-  },
-]
+// ---- aggregation helpers ----
 
-const allProblems = groups.flatMap((g) => g.problems)
+type Stats = { Easy: number; Medium: number; Hard: number }
 
-const TOTALS = {
-  Easy: allProblems.filter((p) => p.difficulty === "Easy").length,
-  Medium: allProblems.filter((p) => p.difficulty === "Medium").length,
-  Hard: allProblems.filter((p) => p.difficulty === "Hard").length,
+function emptyStats(): Stats {
+  return { Easy: 0, Medium: 0, Hard: 0 }
 }
-const TOTAL = TOTALS.Easy + TOTALS.Medium + TOTALS.Hard
 
-// ---- gauge (small variant of roadmap gauge) ----
+function tallyDifficulty(problems: PracticeProblem[]): Stats {
+  const s = emptyStats()
+  for (const p of problems) s[p.difficulty]++
+  return s
+}
+
+function tallySolved(problems: PracticeProblem[], solved: Set<string>): Stats {
+  const s = emptyStats()
+  for (const p of problems) {
+    if (solved.has(p.id)) s[p.difficulty]++
+  }
+  return s
+}
+
+function sumStats(s: Stats) {
+  return s.Easy + s.Medium + s.Hard
+}
+
+function listProblems(listId: string): PracticeProblem[] {
+  return practiceProblems.filter((p) => p.listIds.includes(listId))
+}
+
+// ---- gauge ----
 
 function polar(cx: number, cy: number, r: number, deg: number) {
   const rad = (deg * Math.PI) / 180
@@ -213,22 +223,27 @@ function arcPath(
   return `M ${start.x.toFixed(3)} ${start.y.toFixed(3)} A ${r} ${r} 0 ${largeArc} 1 ${end.x.toFixed(3)} ${end.y.toFixed(3)}`
 }
 
-type Stats = { Easy: number; Medium: number; Hard: number }
-
-function ProgressGauge({ solved }: { solved: Stats }) {
-  const easy = { solved: solved.Easy, total: TOTALS.Easy }
-  const medium = { solved: solved.Medium, total: TOTALS.Medium }
-  const hard = { solved: solved.Hard, total: TOTALS.Hard }
-  const totalSolved = easy.solved + medium.solved + hard.solved
+function ProgressGauge({
+  solved,
+  totals,
+  size = 128,
+}: {
+  solved: Stats
+  totals: Stats
+  size?: number
+}) {
+  const total = sumStats(totals)
+  const totalSolved = sumStats(solved)
   const cx = 60
   const cy = 60
   const r = 46
   const startAngle = 135
   const sweep = 270
 
-  const easySpan = (easy.total / TOTAL) * sweep
-  const medSpan = (medium.total / TOTAL) * sweep
-  const hardSpan = (hard.total / TOTAL) * sweep
+  const safeTotal = total || 1
+  const easySpan = (totals.Easy / safeTotal) * sweep
+  const medSpan = (totals.Medium / safeTotal) * sweep
+  const hardSpan = (totals.Hard / safeTotal) * sweep
 
   const easyStart = startAngle
   const medStart = startAngle + easySpan
@@ -236,18 +251,25 @@ function ProgressGauge({ solved }: { solved: Stats }) {
   const arcEnd = startAngle + sweep
 
   const easyFill =
-    easyStart + (easy.total ? Math.min(easy.solved / easy.total, 1) : 0) * easySpan
+    easyStart +
+    (totals.Easy ? Math.min(solved.Easy / totals.Easy, 1) : 0) * easySpan
   const medFill =
-    medStart + (medium.total ? Math.min(medium.solved / medium.total, 1) : 0) * medSpan
+    medStart +
+    (totals.Medium ? Math.min(solved.Medium / totals.Medium, 1) : 0) * medSpan
   const hardFill =
-    hardStart + (hard.total ? Math.min(hard.solved / hard.total, 1) : 0) * hardSpan
+    hardStart +
+    (totals.Hard ? Math.min(solved.Hard / totals.Hard, 1) : 0) * hardSpan
 
   const easyDot = polar(cx, cy, r, easyStart)
   const medDot = polar(cx, cy, r, medStart)
-  const hardDot = polar(cx, cy, r, hardStart)
+  const hardDot = polar(cx, cy, r, arcEnd)
 
   return (
-    <div className="relative size-[120px] shrink-0">
+    <div
+      className="relative shrink-0"
+      style={{ width: size, height: size }}
+      aria-label={`${totalSolved} of ${total} problems solved`}
+    >
       <svg viewBox="0 0 120 120" className="size-full">
         <g opacity="0.22">
           <path
@@ -272,7 +294,7 @@ function ProgressGauge({ solved }: { solved: Stats }) {
             strokeLinecap="round"
           />
         </g>
-        {easy.solved > 0 && (
+        {solved.Easy > 0 && (
           <path
             d={arcPath(cx, cy, r, easyStart, easyFill)}
             fill="none"
@@ -281,7 +303,7 @@ function ProgressGauge({ solved }: { solved: Stats }) {
             strokeLinecap="round"
           />
         )}
-        {medium.solved > 0 && (
+        {solved.Medium > 0 && (
           <path
             d={arcPath(cx, cy, r, medStart, medFill)}
             fill="none"
@@ -290,7 +312,7 @@ function ProgressGauge({ solved }: { solved: Stats }) {
             strokeLinecap="round"
           />
         )}
-        {hard.solved > 0 && (
+        {solved.Hard > 0 && (
           <path
             d={arcPath(cx, cy, r, hardStart, hardFill)}
             fill="none"
@@ -304,11 +326,11 @@ function ProgressGauge({ solved }: { solved: Stats }) {
         <circle cx={hardDot.x} cy={hardDot.y} r="3.5" fill={COLORS.Hard} />
       </svg>
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-heading text-2xl leading-none font-bold tracking-[-0.03em] tabular-nums">
+        <span className="font-heading text-3xl leading-none font-bold tracking-[-0.03em] tabular-nums">
           {totalSolved}
         </span>
-        <span className="mt-0.5 font-mono text-[10px] leading-tight text-muted-foreground">
-          /{TOTAL}
+        <span className="mt-1 font-mono text-[10px] leading-tight text-muted-foreground">
+          /{total}
         </span>
         <span className="mt-0.5 text-[10px] leading-tight text-muted-foreground">
           Solved
@@ -318,165 +340,112 @@ function ProgressGauge({ solved }: { solved: Stats }) {
   )
 }
 
-// ---- left categories panel ----
+// ---- hero card ----
 
-function CategoriesPanel() {
-  const [activeId, setActiveId] = useState("problems")
-  const [openId, setOpenId] = useState<string | null>("coding")
-
+function MetricTile({
+  icon,
+  label,
+  value,
+  accent,
+}: {
+  icon: React.ReactNode
+  label: string
+  value: string | number
+  accent?: string
+}) {
   return (
-    <aside aria-label="Practice categories" className={cn(cardClass, "p-2")}>
-      <CardSheen />
-      <div className="relative">
-        <nav className="flex flex-col gap-0.5">
-          {categories.map((cat) => {
-            const Icon = cat.icon
-            const isActive = activeId === cat.id
-            const isOpen = openId === cat.id
-            const hasChildren = !!cat.children?.length
-
-            return (
-              <div key={cat.id}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveId(cat.id)
-                    if (hasChildren) setOpenId(isOpen ? null : cat.id)
-                  }}
-                  aria-expanded={hasChildren ? isOpen : undefined}
-                  className={cn(
-                    "group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors",
-                    isActive
-                      ? "bg-muted text-foreground"
-                      : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                  )}
-                >
-                  <Icon className="size-4 shrink-0" />
-                  <span className="flex-1 text-left">{cat.label}</span>
-                  {cat.badge && (
-                    <span className="rounded-md bg-amber-500/15 px-1.5 py-0.5 font-mono text-[9px] font-semibold tracking-wide text-amber-500 uppercase">
-                      {cat.badge}
-                    </span>
-                  )}
-                  {hasChildren && (
-                    <IconChevronDown
-                      className={cn(
-                        "size-3.5 shrink-0 transition-transform",
-                        isOpen && "rotate-180"
-                      )}
-                    />
-                  )}
-                </button>
-
-                {hasChildren && (
-                  <div
-                    className={cn(
-                      "grid transition-all duration-200 ease-out",
-                      isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-                    )}
-                  >
-                    <div className="overflow-hidden">
-                      <div className="ml-4 mt-0.5 flex flex-col gap-0.5 border-l border-border/60 pl-2">
-                        {cat.children!.map((child) => {
-                          const childActive = activeId === child.id
-                          return (
-                            <button
-                              key={child.id}
-                              type="button"
-                              onClick={() => setActiveId(child.id)}
-                              className={cn(
-                                "rounded-md px-2.5 py-1.5 text-left text-[13px] transition-colors",
-                                childActive
-                                  ? "bg-muted text-foreground"
-                                  : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                              )}
-                            >
-                              {child.label}
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )
-          })}
-        </nav>
+    <div className="rounded-lg border border-border/50 bg-background/50 px-3 py-2.5 dark:bg-white/[0.015]">
+      <div className="flex items-center gap-1.5 text-[10px] font-medium tracking-wide text-muted-foreground uppercase">
+        <span className={cn("shrink-0", accent ?? "text-muted-foreground")}>
+          {icon}
+        </span>
+        <span>{label}</span>
       </div>
-    </aside>
-  )
-}
-
-// ---- featured topic banner ----
-
-function TopCards() {
-  return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
-      {topCards.map((c) => (
-        <a
-          key={c.id}
-          href={c.href}
-          className={cn(
-            cardClass,
-            "group p-3 transition-[border-color,box-shadow] duration-300 hover:border-border/60",
-            "hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
-          )}
-        >
-          <CardSheen />
-          <div className="relative flex items-center gap-3">
-            <div className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-muted/30 ring-1 ring-border/40">
-              <Image
-                src={c.image}
-                alt={c.title}
-                fill
-                sizes="56px"
-                className="object-cover"
-              />
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="text-[0.9375rem] leading-tight font-semibold tracking-[-0.02em]">
-                {c.title}
-              </h3>
-              <p className="mt-1 font-mono text-[11px] text-muted-foreground">
-                {c.subtitle}
-              </p>
-            </div>
-          </div>
-        </a>
-      ))}
+      <div className="mt-1 font-heading text-lg leading-none font-bold tracking-[-0.02em] tabular-nums">
+        {value}
+      </div>
     </div>
   )
 }
 
-// ---- summary card with description + scores + gauge ----
+function HeroCard({
+  list,
+  stats,
+  solved,
+  freeCount,
+  savedCount,
+}: {
+  list: PracticeList
+  stats: Stats
+  solved: Stats
+  freeCount: number
+  savedCount: number
+}) {
+  const accent = ACCENT[list.accent]
+  const total = sumStats(stats)
+  const totalSolved = sumStats(solved)
+  const percent = total > 0 ? Math.round((totalSolved / total) * 100) : 0
 
-function SummaryCard({ solved }: { solved: Stats }) {
   return (
-    <div className={cn(cardClass, "p-5")}>
+    <div className={cn(cardClass, "@container p-6 sm:p-7")}>
       <CardSheen />
-      <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-start gap-2.5 sm:max-w-[320px]">
-          <IconHelpCircle className="size-5 shrink-0 text-muted-foreground" />
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            {featured.description}
-          </p>
+      <div className="relative flex flex-col gap-6 @2xl:flex-row @2xl:items-start @2xl:justify-between">
+        <div className="flex max-w-md flex-col gap-4">
+          <span
+            className={cn(
+              "inline-flex w-fit items-center gap-1.5 rounded-md border border-border/60 px-2 py-1 font-mono text-[10px] tracking-wide text-muted-foreground uppercase",
+              accent.tint
+            )}
+          >
+            <IconTarget className={cn("size-3.5", accent.text)} />
+            <span>Practice hub</span>
+          </span>
+          <div>
+            <h1 className="font-heading text-4xl leading-[0.9] font-bold tracking-[-0.04em] sm:text-5xl">
+              {list.title}
+              <span className={accent.text}>.</span>
+            </h1>
+            <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
+              {list.description} Filter, resume, bookmark, and jump into the
+              exact problem you need next.
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center justify-between gap-5 sm:justify-end">
-          <div className="space-y-1.5">
-            <ScoreRow label="Easy" tone="text-emerald-500" solved={solved.Easy} total={TOTALS.Easy} />
-            <ScoreRow label="Med" tone="text-amber-500" solved={solved.Medium} total={TOTALS.Medium} />
-            <ScoreRow label="Hard" tone="text-red-500" solved={solved.Hard} total={TOTALS.Hard} />
-          </div>
-          <ProgressGauge solved={solved} />
+        <div className="grid w-full grid-cols-2 gap-2.5 @2xl:max-w-xs">
+          <MetricTile
+            icon={<IconPercentage className="size-3.5" />}
+            label="Complete"
+            value={`${percent}%`}
+            accent={accent.text}
+          />
+          <MetricTile
+            icon={<IconCircleCheck className="size-3.5" />}
+            label="Solved"
+            value={`${totalSolved}/${total}`}
+            accent="text-emerald-500"
+          />
+          <MetricTile
+            icon={<IconBolt className="size-3.5" />}
+            label="Free"
+            value={freeCount}
+            accent="text-amber-500"
+          />
+          <MetricTile
+            icon={<IconBookmark className="size-3.5" />}
+            label="Saved"
+            value={savedCount}
+            accent="text-cyan-500"
+          />
         </div>
       </div>
     </div>
   )
 }
 
-function ScoreRow({
+// ---- gauge card ----
+
+function DifficultyRow({
   label,
   tone,
   solved,
@@ -488,11 +457,238 @@ function ScoreRow({
   total: number
 }) {
   return (
-    <div className="flex items-center gap-2 font-mono text-[11px]">
+    <div className="flex items-center justify-between gap-4 font-mono text-[11px]">
       <span className={cn("font-semibold", tone)}>{label}</span>
-      <span className="text-muted-foreground">
+      <span className="text-muted-foreground tabular-nums">
         {solved}/{total}
       </span>
+    </div>
+  )
+}
+
+function GaugeCard({
+  list,
+  stats,
+  solved,
+}: {
+  list: PracticeList
+  stats: Stats
+  solved: Stats
+}) {
+  const accent = ACCENT[list.accent]
+  return (
+    <div className={cn(cardClass, "p-5")}>
+      <CardSheen />
+      <div className="relative flex h-full flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <IconChartBar className={cn("size-4", accent.text)} />
+          <h3 className="text-sm font-semibold tracking-[-0.01em]">
+            {list.title}
+          </h3>
+        </div>
+        <div className="flex flex-1 items-center justify-between gap-4">
+          <div className="flex min-w-[110px] flex-col gap-2.5">
+            <DifficultyRow
+              label="Easy"
+              tone="text-emerald-500"
+              solved={solved.Easy}
+              total={stats.Easy}
+            />
+            <DifficultyRow
+              label="Medium"
+              tone="text-amber-500"
+              solved={solved.Medium}
+              total={stats.Medium}
+            />
+            <DifficultyRow
+              label="Hard"
+              tone="text-red-500"
+              solved={solved.Hard}
+              total={stats.Hard}
+            />
+          </div>
+          <ProgressGauge solved={solved} totals={stats} size={128} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---- problem-set selector ----
+
+function ListCard({
+  list,
+  total,
+  solvedCount,
+  active,
+  onSelect,
+}: {
+  list: PracticeList
+  total: number
+  solvedCount: number
+  active: boolean
+  onSelect: () => void
+}) {
+  const accent = ACCENT[list.accent]
+  const percent = total > 0 ? (solvedCount / total) * 100 : 0
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={active}
+      className={cn(
+        cardClass,
+        "group flex min-h-[104px] flex-col p-3 text-left transition-[border-color,box-shadow] duration-300 hover:border-border/70 hover:shadow-[0_8px_28px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_8px_28px_rgba(0,0,0,0.32)]",
+        active && "border-primary/50"
+      )}
+    >
+      <CardSheen />
+      <div
+        aria-hidden
+        className={cn(
+          "absolute inset-x-0 top-0 h-19 bg-gradient-to-b opacity-90",
+          accent.tint,
+          "to-transparent"
+        )}
+      />
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h4 className="truncate text-sm font-semibold tracking-[-0.02em]">
+              {list.title}
+            </h4>
+            <p className="mt-1 h-8 overflow-hidden text-[12px] leading-4 text-muted-foreground">
+              {list.description}
+            </p>
+          </div>
+          <span className="shrink-0 font-mono text-[11px] text-muted-foreground tabular-nums">
+            {solvedCount}/{total}
+          </span>
+        </div>
+        <div className="mt-auto h-1.5 overflow-hidden rounded-full bg-muted">
+          <div
+            className={cn("h-full rounded-full transition-all", accent.bar)}
+            style={{ width: `${percent}%` }}
+          />
+        </div>
+      </div>
+    </button>
+  )
+}
+
+function ListSelector({
+  activeId,
+  onSelect,
+  solvedIds,
+}: {
+  activeId: string
+  onSelect: (id: string) => void
+  solvedIds: Set<string>
+}) {
+  return (
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2">
+      {practiceLists.map((list) => {
+        const problems = listProblems(list.id)
+        const solved = problems.reduce(
+          (n, p) => n + (solvedIds.has(p.id) ? 1 : 0),
+          0
+        )
+        return (
+          <ListCard
+            key={list.id}
+            list={list}
+            total={problems.length}
+            solvedCount={solved}
+            active={activeId === list.id}
+            onSelect={() => onSelect(list.id)}
+          />
+        )
+      })}
+    </div>
+  )
+}
+
+// ---- next up ----
+
+function pickNextUp(
+  problems: PracticeProblem[],
+  solvedIds: Set<string>,
+  seed: number
+): PracticeProblem | null {
+  const candidates = problems.filter((p) => !p.locked && !solvedIds.has(p.id))
+  const pool =
+    candidates.length > 0 ? candidates : problems.filter((p) => !p.locked)
+  if (pool.length === 0) return null
+  return pool[seed % pool.length]
+}
+
+function NextUpCard({
+  list,
+  solvedIds,
+}: {
+  list: PracticeList
+  solvedIds: Set<string>
+}) {
+  const accent = ACCENT[list.accent]
+  const [seed, setSeed] = useState(() => Math.floor(Math.random() * 1000))
+  const problems = useMemo(() => listProblems(list.id), [list.id])
+  const next = useMemo(
+    () => pickNextUp(problems, solvedIds, seed),
+    [problems, solvedIds, seed]
+  )
+  const topic = next ? practiceTopicById[next.topicId] : undefined
+
+  return (
+    <div className={cn(cardClass, "p-5")}>
+      <CardSheen />
+      <div className="relative flex h-full flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <IconTarget className={cn("size-4", accent.text)} />
+            <h3 className="text-sm font-semibold tracking-[-0.01em]">
+              Next up
+            </h3>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSeed((s) => s + 1)}
+            aria-label="Pick another problem"
+            className="inline-flex size-7 items-center justify-center rounded-md border border-border/60 bg-background/40 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <IconRefresh className="size-3.5" />
+          </button>
+        </div>
+
+        {next ? (
+          <a
+            href={`/problem/${next.id}`}
+            className="group flex flex-1 items-start justify-between gap-3 rounded-lg border border-border/60 bg-background/40 p-3 transition-colors hover:bg-muted/50 dark:bg-white/[0.01]"
+          >
+            <div className="min-w-0">
+              <h4 className="truncate text-sm font-semibold tracking-[-0.01em] group-hover:underline">
+                {next.title}
+              </h4>
+              <p className="mt-1 truncate text-[11px] text-muted-foreground">
+                {topic?.title ?? next.pattern}
+                {topic ? ` / ${next.pattern}` : ""}
+              </p>
+            </div>
+            <span
+              className={cn(
+                "shrink-0 font-mono text-[11px] font-semibold",
+                DIFF_TEXT[next.difficulty]
+              )}
+            >
+              {next.difficulty}
+            </span>
+          </a>
+        ) : (
+          <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-border/60 bg-background/40 p-4 text-center text-[12px] text-muted-foreground">
+            All caught up on this list.
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -503,24 +699,21 @@ function FilterToolbar({
   query,
   setQuery,
   onClear,
+  onShuffle,
 }: {
   query: string
   setQuery: (s: string) => void
   onClear: () => void
+  onShuffle: () => void
 }) {
-  const shuffle = () => {
-    const unlocked = allProblems.filter((p) => !p.locked)
-    const i = Math.floor(Math.random() * unlocked.length)
-    setQuery(unlocked[i].title)
-  }
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-      <div className="relative w-full sm:w-56">
-        <IconSearch className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+      <div className="relative w-full sm:w-64">
+        <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search"
+          placeholder="Search problems"
           className="h-9 w-full pl-8"
         />
       </div>
@@ -529,7 +722,7 @@ function FilterToolbar({
           <ToolbarButton label="Toggle layout">
             <IconLayoutGrid className="size-3.5" />
           </ToolbarButton>
-          <ToolbarButton label="Shuffle" onClick={shuffle}>
+          <ToolbarButton label="Shuffle" onClick={onShuffle}>
             <IconArrowsShuffle className="size-3.5" />
           </ToolbarButton>
         </div>
@@ -569,14 +762,36 @@ function ToolbarButton({
 
 // ---- problem table ----
 
+type TopicGroup = {
+  id: string
+  title: string
+  problems: PracticeProblem[]
+}
+
+function buildGroups(problems: PracticeProblem[]): TopicGroup[] {
+  const byTopic = new Map<string, PracticeProblem[]>()
+  for (const p of problems) {
+    const arr = byTopic.get(p.topicId) ?? []
+    arr.push(p)
+    byTopic.set(p.topicId, arr)
+  }
+  return practiceTopics
+    .filter((t) => byTopic.has(t.id))
+    .map((t) => ({
+      id: t.id,
+      title: t.title,
+      problems: byTopic.get(t.id)!,
+    }))
+}
+
 function ProblemTable({
   group,
   solved,
   onToggle,
 }: {
   group: TopicGroup
-  solved: Set<number>
-  onToggle: (id: number) => void
+  solved: Set<string>
+  onToggle: (id: string) => void
 }) {
   if (group.problems.length === 0) return null
   const solvedCount = group.problems.reduce(
@@ -676,7 +891,97 @@ function ProblemTable({
   )
 }
 
-// ---- right rail: calendar / streak / ranking ----
+// ---- left categories panel ----
+
+function CategoriesPanel() {
+  const [activeId, setActiveId] = useState("problems")
+  const [openId, setOpenId] = useState<string | null>("coding")
+
+  return (
+    <aside aria-label="Practice categories" className={cn(cardClass, "p-2")}>
+      <CardSheen />
+      <div className="relative">
+        <nav className="flex flex-col gap-0.5">
+          {categories.map((cat) => {
+            const Icon = cat.icon
+            const isActive = activeId === cat.id
+            const isOpen = openId === cat.id
+            const hasChildren = !!cat.children?.length
+
+            return (
+              <div key={cat.id}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveId(cat.id)
+                    if (hasChildren) setOpenId(isOpen ? null : cat.id)
+                  }}
+                  aria-expanded={hasChildren ? isOpen : undefined}
+                  className={cn(
+                    "group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors",
+                    isActive
+                      ? "bg-muted text-foreground"
+                      : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                  )}
+                >
+                  <Icon className="size-4 shrink-0" />
+                  <span className="flex-1 text-left">{cat.label}</span>
+                  {cat.badge && (
+                    <span className="rounded-md bg-amber-500/15 px-1.5 py-0.5 font-mono text-[9px] font-semibold tracking-wide text-amber-500 uppercase">
+                      {cat.badge}
+                    </span>
+                  )}
+                  {hasChildren && (
+                    <IconChevronDown
+                      className={cn(
+                        "size-3.5 shrink-0 transition-transform",
+                        isOpen && "rotate-180"
+                      )}
+                    />
+                  )}
+                </button>
+
+                {hasChildren && (
+                  <div
+                    className={cn(
+                      "grid transition-all duration-200 ease-out",
+                      isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                    )}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="mt-0.5 ml-4 flex flex-col gap-0.5 border-l border-border/60 pl-2">
+                        {cat.children!.map((child) => {
+                          const childActive = activeId === child.id
+                          return (
+                            <button
+                              key={child.id}
+                              type="button"
+                              onClick={() => setActiveId(child.id)}
+                              className={cn(
+                                "rounded-md px-2.5 py-1.5 text-left text-[13px] transition-colors",
+                                childActive
+                                  ? "bg-muted text-foreground"
+                                  : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                              )}
+                            >
+                              {child.label}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </nav>
+      </div>
+    </aside>
+  )
+}
+
+// ---- calendar + ranking (right rail) ----
 
 function useCountdownToMidnight() {
   const [text, setText] = useState("--:--:--")
@@ -700,7 +1005,11 @@ function useCountdownToMidnight() {
 
 type CalendarCell = { day: number; isToday: boolean; isPast: boolean } | null
 
-function buildCalendar(viewYear: number, viewMonth: number, today: Date): CalendarCell[] {
+function buildCalendar(
+  viewYear: number,
+  viewMonth: number,
+  today: Date
+): CalendarCell[] {
   const firstDay = new Date(viewYear, viewMonth, 1).getDay()
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate()
   const isCurrentMonth =
@@ -729,7 +1038,9 @@ function StreakBox({
 }) {
   return (
     <div className="rounded-lg border border-border/60 bg-background/40 p-2.5">
-      <div className="text-[10px] tracking-wide text-muted-foreground">{label}</div>
+      <div className="text-[10px] tracking-wide text-muted-foreground">
+        {label}
+      </div>
       <div className="mt-1 flex items-center gap-1.5">
         {icon}
         <span className="text-sm font-semibold">{value}</span>
@@ -793,7 +1104,10 @@ function CalendarCard() {
 
         <div className="mt-1.5 grid grid-cols-7 gap-1">
           {cells.map((cell, i) => (
-            <div key={i} className="relative flex aspect-square items-center justify-center">
+            <div
+              key={i}
+              className="relative flex aspect-square items-center justify-center"
+            >
               {cell && (
                 <>
                   {cell.isPast && (
@@ -856,7 +1170,9 @@ function RankingCard() {
       <CardSheen />
       <div className="relative flex flex-col items-center justify-center gap-2 py-4 text-center">
         <IconChartLine className="size-5 text-muted-foreground" />
-        <p className="text-sm text-muted-foreground">Sign in to see your ranking</p>
+        <p className="text-sm text-muted-foreground">
+          Sign in to see your ranking
+        </p>
       </div>
     </div>
   )
@@ -865,38 +1181,58 @@ function RankingCard() {
 // ---- main panel ----
 
 export function PracticeDashboard() {
+  const [activeListId, setActiveListId] = useState<string>("neetcode-150")
+  const [solvedIds, setSolvedIds] = useState<Set<string>>(() => new Set())
   const [query, setQuery] = useState("")
-  const [solvedIds, setSolvedIds] = useState<Set<number>>(() => new Set())
+
+  const activeList = useMemo(
+    () => practiceLists.find((l) => l.id === activeListId) ?? practiceLists[0],
+    [activeListId]
+  )
+
+  const listProblemsMemo = useMemo(
+    () => listProblems(activeList.id),
+    [activeList.id]
+  )
+
+  const stats = useMemo(
+    () => tallyDifficulty(listProblemsMemo),
+    [listProblemsMemo]
+  )
+  const solvedStats = useMemo(
+    () => tallySolved(listProblemsMemo, solvedIds),
+    [listProblemsMemo, solvedIds]
+  )
+  const freeCount = useMemo(
+    () => listProblemsMemo.filter((p) => !p.locked).length,
+    [listProblemsMemo]
+  )
 
   const filteredGroups = useMemo(() => {
     const q = query.trim().toLowerCase()
-    if (!q) return groups
-    return groups
-      .map((g) => ({
-        ...g,
-        problems: g.problems.filter((p) => p.title.toLowerCase().includes(q)),
-      }))
-      .filter((g) => g.problems.length > 0)
-  }, [query])
+    const base = q
+      ? listProblemsMemo.filter((p) => p.title.toLowerCase().includes(q))
+      : listProblemsMemo
+    return buildGroups(base)
+  }, [listProblemsMemo, query])
 
-  const solvedStats = useMemo<Stats>(() => {
-    const s: Stats = { Easy: 0, Medium: 0, Hard: 0 }
-    for (const p of allProblems) {
-      if (solvedIds.has(p.id)) s[p.difficulty]++
-    }
-    return s
-  }, [solvedIds])
-
-  const toggleSolved = (id: number) => {
+  const toggleSolved = useCallback((id: string) => {
     setSolvedIds((prev) => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
       else next.add(id)
       return next
     })
-  }
+  }, [])
 
   const clearProgress = () => setSolvedIds(new Set())
+
+  const shuffle = () => {
+    const unlocked = listProblemsMemo.filter((p) => !p.locked)
+    if (unlocked.length === 0) return
+    const pick = unlocked[Math.floor(Math.random() * unlocked.length)]
+    setQuery(pick.title)
+  }
 
   return (
     <div className="mx-auto w-full max-w-[1400px] px-4 pt-8 pb-20 lg:px-6">
@@ -908,38 +1244,53 @@ export function PracticeDashboard() {
 
         {/* Center column */}
         <div className="flex min-w-0 flex-col gap-4">
-          <TopCards />
-          <SummaryCard solved={solvedStats} />
-          <FilterToolbar
-            query={query}
-            setQuery={setQuery}
-            onClear={clearProgress}
+          <HeroCard
+            list={activeList}
+            stats={stats}
+            solved={solvedStats}
+            freeCount={freeCount}
+            savedCount={0}
           />
-          {filteredGroups.length === 0 ? (
-            <div
-              className={cn(
-                cardClass,
-                "p-10 text-center text-sm text-muted-foreground"
-              )}
-            >
-              No problems match your search.
-            </div>
-          ) : (
-            <div className="flex flex-col gap-8">
-              {filteredGroups.map((g) => (
-                <ProblemTable
-                  key={g.id}
-                  group={g}
-                  solved={solvedIds}
-                  onToggle={toggleSolved}
-                />
-              ))}
-            </div>
-          )}
+          <ListSelector
+            activeId={activeList.id}
+            onSelect={setActiveListId}
+            solvedIds={solvedIds}
+          />
+          <div className="mt-4 flex flex-col gap-4">
+            <FilterToolbar
+              query={query}
+              setQuery={setQuery}
+              onClear={clearProgress}
+              onShuffle={shuffle}
+            />
+            {filteredGroups.length === 0 ? (
+              <div
+                className={cn(
+                  cardClass,
+                  "p-10 text-center text-sm text-muted-foreground"
+                )}
+              >
+                No problems match your search.
+              </div>
+            ) : (
+              <div className="flex flex-col gap-6">
+                {filteredGroups.map((g) => (
+                  <ProblemTable
+                    key={g.id}
+                    group={g}
+                    solved={solvedIds}
+                    onToggle={toggleSolved}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right rail */}
-        <div className="flex flex-col gap-4 lg:sticky lg:top-[106px] lg:self-start">
+        <div className="flex flex-col gap-4">
+          <GaugeCard list={activeList} stats={stats} solved={solvedStats} />
+          <NextUpCard list={activeList} solvedIds={solvedIds} />
           <CalendarCard />
           <RankingCard />
         </div>
