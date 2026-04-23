@@ -14,6 +14,10 @@ import "@xyflow/react/dist/style.css"
 
 import { useCallback, useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
+import {
+  RoadmapTopicSheet,
+  type RoadmapTopicMeta,
+} from "@/components/roadmap-topic-sheet"
 
 // --- Data ---
 
@@ -249,7 +253,7 @@ function TopicNode({ data }: { data: { topic: Topic } }) {
   return (
     <div
       className={cn(
-        "w-[220px] rounded-xl border border-border/40 bg-[#f5f5f6] p-3.5",
+        "w-[220px] cursor-pointer rounded-xl border border-border/40 bg-[#f5f5f6] p-3.5",
         "shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)]",
         "dark:bg-white/[0.02] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]",
         "transition-[border-color,box-shadow] duration-300 hover:border-border/60 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
@@ -302,6 +306,10 @@ const nodeTypes = { topic: TopicNode }
 
 export function RoadmapCanvas() {
   const [hoveredNode, setHoveredNode] = useState<string | null>(null)
+  const [activeTopicId, setActiveTopicId] = useState<string | null>(null)
+  const [solvedIds, setSolvedIds] = useState<Set<string>>(() => new Set())
+  const [starredIds, setStarredIds] = useState<Set<string>>(() => new Set())
+  const [prereqsDone, setPrereqsDone] = useState<Set<string>>(() => new Set())
 
   const ancestors = useMemo(
     () => (hoveredNode ? getAncestors(hoveredNode) : null),
@@ -316,6 +324,33 @@ export function RoadmapCanvas() {
     []
   )
   const onNodeMouseLeave = useCallback(() => setHoveredNode(null), [])
+  const onNodeClick = useCallback(
+    (_: React.MouseEvent, node: Node) => setActiveTopicId(node.id),
+    []
+  )
+
+  const toggle = useCallback(
+    (setter: React.Dispatch<React.SetStateAction<Set<string>>>) =>
+      (id: string) =>
+        setter((prev) => {
+          const next = new Set(prev)
+          if (next.has(id)) next.delete(id)
+          else next.add(id)
+          return next
+        }),
+    []
+  )
+
+  const toggleSolved = useMemo(() => toggle(setSolvedIds), [toggle])
+  const toggleStarred = useMemo(() => toggle(setStarredIds), [toggle])
+  const togglePrereq = useMemo(() => toggle(setPrereqsDone), [toggle])
+
+  const activeTopic: RoadmapTopicMeta | null = useMemo(() => {
+    if (!activeTopicId) return null
+    const t = topics[activeTopicId]
+    if (!t) return null
+    return { id: activeTopicId, title: t.title, description: t.description }
+  }, [activeTopicId])
 
   return (
     <div className="fixed inset-0 z-0 overflow-hidden">
@@ -325,6 +360,7 @@ export function RoadmapCanvas() {
         nodeTypes={nodeTypes}
         onNodeMouseEnter={onNodeMouseEnter}
         onNodeMouseLeave={onNodeMouseLeave}
+        onNodeClick={onNodeClick}
         fitView
         fitViewOptions={{ padding: 0.2 }}
         minZoom={0.1}
@@ -350,6 +386,19 @@ export function RoadmapCanvas() {
           )}
         />
       </ReactFlow>
+      <RoadmapTopicSheet
+        topic={activeTopic}
+        open={activeTopic !== null}
+        onOpenChange={(open) => {
+          if (!open) setActiveTopicId(null)
+        }}
+        solvedIds={solvedIds}
+        onToggleSolved={toggleSolved}
+        starredIds={starredIds}
+        onToggleStarred={toggleStarred}
+        completedPrereqs={prereqsDone}
+        onTogglePrereq={togglePrereq}
+      />
     </div>
   )
 }
