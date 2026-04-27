@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
+    "test:content": "bun run scripts/validate-content.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

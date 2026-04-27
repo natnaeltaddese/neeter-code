@@ -42,13 +42,13 @@ export function Story() {
                 "dark:bg-[linear-gradient(175deg,#7a7a7a_0%,#b8b8b8_20%,#686868_45%,#adadad_70%,#757575_100%)]"
               )}
             >
-              Hi, I'm Navi
+              Hi, I&apos;m Navi
             </span>
           </h2>
 
           <div className="mt-6 space-y-4">
             <p className="text-[0.9375rem] leading-[1.65] tracking-[-0.01em] text-muted-foreground sm:text-[1rem]">
-              I created NeetCode in 2020 when I was unemployed and couldn't find
+              I created NeetCode in 2020 when I was unemployed and couldn&apos;t find
               a job.
             </p>
             <p className="text-[0.9375rem] leading-[1.65] tracking-[-0.01em] text-muted-foreground sm:text-[1rem]">

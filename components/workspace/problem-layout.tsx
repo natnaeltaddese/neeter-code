@@ -9,71 +9,7 @@ import { ConsolePanel } from "./console-panel"
 import { DescriptionPanel } from "./description-panel"
 import { EditorPanel } from "./editor-panel"
 import type { CodeEditorLanguage } from "./code-editor/types"
-
-const STARTER_CODE: Record<CodeEditorLanguage, string> = {
-  python: `class DynamicArray:
-    def __init__(self, capacity: int):
-        pass
-
-    def get(self, i: int) -> int:
-        pass
-
-    def set(self, i: int, n: int) -> None:
-        pass
-
-    def pushback(self, n: int) -> None:
-        pass
-
-    def popback(self) -> int:
-        pass
-
-    def getCapacity(self) -> int:
-        pass
-`,
-  javascript: `class DynamicArray {
-  constructor(capacity) {}
-
-  get(i) {}
-
-  set(i, n) {}
-
-  pushback(n) {}
-
-  popback() {}
-
-  getCapacity() {}
-}
-`,
-  java: `class DynamicArray {
-    public DynamicArray(int capacity) {}
-
-    public int get(int i) { return 0; }
-
-    public void set(int i, int n) {}
-
-    public void pushback(int n) {}
-
-    public int popback() { return 0; }
-
-    public int getCapacity() { return 0; }
-}
-`,
-  cpp: `class DynamicArray {
-public:
-    DynamicArray(int capacity) {}
-
-    int get(int i) {}
-
-    void set(int i, int n) {}
-
-    void pushback(int n) {}
-
-    int popback() {}
-
-    int getCapacity() {}
-};
-`,
-}
+import type { ProblemWorkspaceContent } from "@/lib/problem-workspace"
 
 const HORIZONTAL_SEPARATOR = cn(
   "group relative w-2.5 shrink-0 cursor-col-resize bg-transparent transition-colors",
@@ -89,15 +25,17 @@ export type ProblemLayoutProps = {
   problemNumber: number
   title: string
   difficulty: "Easy" | "Medium" | "Hard"
+  workspace: ProblemWorkspaceContent
 }
 
 export function ProblemLayout({
   problemNumber,
   title,
   difficulty,
+  workspace,
 }: ProblemLayoutProps) {
   const [language, setLanguage] = useState<CodeEditorLanguage>("python")
-  const [code, setCode] = useState<string>(STARTER_CODE.python)
+  const [code, setCode] = useState<string>(workspace.starterCode.python)
 
   const desc = useCollapsiblePanel()
   const editor = useCollapsiblePanel()
@@ -105,10 +43,10 @@ export function ProblemLayout({
 
   const onLanguageChange = (next: CodeEditorLanguage) => {
     setLanguage(next)
-    setCode(STARTER_CODE[next])
+    setCode(workspace.starterCode[next])
   }
 
-  const onResetCode = () => setCode(STARTER_CODE[language])
+  const onResetCode = () => setCode(workspace.starterCode[language])
 
   return (
     <>
@@ -140,6 +78,7 @@ export function ProblemLayout({
                 problemNumber={problemNumber}
                 title={title}
                 difficulty={difficulty}
+                content={workspace}
                 onCollapse={desc.collapse}
               />
             )}
@@ -210,7 +149,10 @@ export function ProblemLayout({
                     onExpand={consolePanel.expand}
                   />
                 ) : (
-                  <ConsolePanel onCollapse={consolePanel.collapse} />
+                  <ConsolePanel
+                    testCases={workspace.testCases}
+                    onCollapse={consolePanel.collapse}
+                  />
                 )}
               </Panel>
             </Group>
@@ -228,6 +170,7 @@ export function ProblemLayout({
         code={code}
         onCodeChange={setCode}
         onResetCode={onResetCode}
+        workspace={workspace}
       />
     </>
   )
@@ -242,6 +185,7 @@ function MobileTabs({
   code,
   onCodeChange,
   onResetCode,
+  workspace,
 }: {
   problemNumber: number
   title: string
@@ -251,6 +195,7 @@ function MobileTabs({
   code: string
   onCodeChange: (code: string) => void
   onResetCode: () => void
+  workspace: ProblemWorkspaceContent
 }) {
   const tabs = ["Description", "Code", "Console"] as const
   type MobileTab = (typeof tabs)[number]
@@ -296,6 +241,7 @@ function MobileTabs({
             problemNumber={problemNumber}
             title={title}
             difficulty={difficulty}
+            content={workspace}
           />
         )}
         {active === "Code" && (
@@ -307,7 +253,7 @@ function MobileTabs({
             onReset={onResetCode}
           />
         )}
-        {active === "Console" && <ConsolePanel />}
+        {active === "Console" && <ConsolePanel testCases={workspace.testCases} />}
       </div>
     </div>
   )

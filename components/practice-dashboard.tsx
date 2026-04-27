@@ -1,7 +1,6 @@
 "use client"
 
-import Link from "next/link"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import {
   IconArrowsShuffle,
   IconBolt,
@@ -9,45 +8,43 @@ import {
   IconBox,
   IconBrain,
   IconChartBar,
-  IconChartLine,
   IconChevronDown,
-  IconChevronLeft,
-  IconChevronRight,
   IconCircleCheck,
   IconCode,
   IconCpu,
   IconDatabase,
-  IconFlame,
   IconHelpCircle,
-  IconInfoCircle,
   IconLayoutGrid,
-  IconLock,
   IconPercentage,
-  IconRefresh,
   IconSearch,
   IconTarget,
   IconTrash,
-  IconTrophy,
 } from "@tabler/icons-react"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import {
   practiceLists,
-  practiceProblems,
-  practiceTopicById,
-  practiceTopics,
-  type Difficulty,
   type PracticeList,
-  type PracticeProblem,
 } from "@/lib/practice"
+import { ProblemTable, buildGroups } from "./practice-dashboard/problem-table"
+import {
+  CalendarCard,
+  NextUpCard,
+  RankingCard,
+} from "./practice-dashboard/right-rail"
+import {
+  ACCENT,
+  COLORS,
+  CardSheen,
+  arcPath,
+  cardClass,
+  listProblems,
+  polar,
+  sumStats,
+  tallyDifficulty,
+  tallySolved,
+  type Stats,
+} from "./practice-dashboard/shared"
 
 // ---- left-rail categories ----
 
@@ -77,151 +74,7 @@ const categories: Category[] = [
   { id: "databases", label: "Databases", icon: IconDatabase },
 ]
 
-// ---- shared card surface ----
-
-const cardClass = cn(
-  "relative overflow-hidden rounded-xl border border-border/40 bg-[#f5f5f6]",
-  "shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)]",
-  "dark:bg-white/[0.02] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]"
-)
-
-function CardSheen() {
-  return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-b from-white/[0.02] to-transparent"
-    />
-  )
-}
-
-// ---- accent palette per list ----
-
-type Accent = PracticeList["accent"]
-
-const ACCENT: Record<
-  Accent,
-  {
-    text: string
-    softText: string
-    bar: string
-    dot: string
-    ring: string
-    tint: string
-    glow: string
-  }
-> = {
-  primary: {
-    text: "text-primary",
-    softText: "text-primary/80",
-    bar: "bg-primary",
-    dot: "bg-primary",
-    ring: "ring-primary/60",
-    tint: "bg-primary/10",
-    glow: "shadow-[0_0_0_1px_rgba(137,100,255,0.35),0_8px_28px_-8px_rgba(137,100,255,0.45)]",
-  },
-  emerald: {
-    text: "text-emerald-500",
-    softText: "text-emerald-500/80",
-    bar: "bg-emerald-500",
-    dot: "bg-emerald-500",
-    ring: "ring-emerald-500/60",
-    tint: "bg-emerald-500/10",
-    glow: "shadow-[0_0_0_1px_rgba(16,185,129,0.35),0_8px_28px_-8px_rgba(16,185,129,0.4)]",
-  },
-  amber: {
-    text: "text-amber-500",
-    softText: "text-amber-500/80",
-    bar: "bg-amber-500",
-    dot: "bg-amber-500",
-    ring: "ring-amber-500/60",
-    tint: "bg-amber-500/10",
-    glow: "shadow-[0_0_0_1px_rgba(245,158,11,0.35),0_8px_28px_-8px_rgba(245,158,11,0.4)]",
-  },
-  rose: {
-    text: "text-rose-500",
-    softText: "text-rose-500/80",
-    bar: "bg-rose-500",
-    dot: "bg-rose-500",
-    ring: "ring-rose-500/60",
-    tint: "bg-rose-500/10",
-    glow: "shadow-[0_0_0_1px_rgba(244,63,94,0.35),0_8px_28px_-8px_rgba(244,63,94,0.4)]",
-  },
-  cyan: {
-    text: "text-cyan-500",
-    softText: "text-cyan-500/80",
-    bar: "bg-cyan-500",
-    dot: "bg-cyan-500",
-    ring: "ring-cyan-500/60",
-    tint: "bg-cyan-500/10",
-    glow: "shadow-[0_0_0_1px_rgba(6,182,212,0.35),0_8px_28px_-8px_rgba(6,182,212,0.4)]",
-  },
-}
-
-// ---- difficulty styles ----
-
-const COLORS = {
-  Easy: "rgb(16 185 129)",
-  Medium: "rgb(245 158 11)",
-  Hard: "rgb(239 68 68)",
-} as const
-
-const DIFF_TEXT: Record<Difficulty, string> = {
-  Easy: "text-emerald-500",
-  Medium: "text-amber-500",
-  Hard: "text-red-500",
-}
-
-// ---- aggregation helpers ----
-
-type Stats = { Easy: number; Medium: number; Hard: number }
-
-function emptyStats(): Stats {
-  return { Easy: 0, Medium: 0, Hard: 0 }
-}
-
-function tallyDifficulty(problems: PracticeProblem[]): Stats {
-  const s = emptyStats()
-  for (const p of problems) s[p.difficulty]++
-  return s
-}
-
-function tallySolved(problems: PracticeProblem[], solved: Set<string>): Stats {
-  const s = emptyStats()
-  for (const p of problems) {
-    if (solved.has(p.id)) s[p.difficulty]++
-  }
-  return s
-}
-
-function sumStats(s: Stats) {
-  return s.Easy + s.Medium + s.Hard
-}
-
-function listProblems(listId: string): PracticeProblem[] {
-  return practiceProblems.filter((p) => p.listIds.includes(listId))
-}
-
 // ---- gauge ----
-
-function polar(cx: number, cy: number, r: number, deg: number) {
-  const rad = (deg * Math.PI) / 180
-  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) }
-}
-
-function arcPath(
-  cx: number,
-  cy: number,
-  r: number,
-  startDeg: number,
-  endDeg: number
-) {
-  const start = polar(cx, cy, r, startDeg)
-  const end = polar(cx, cy, r, endDeg)
-  const sweep = endDeg - startDeg
-  if (sweep <= 0) return ""
-  const largeArc = sweep > 180 ? 1 : 0
-  return `M ${start.x.toFixed(3)} ${start.y.toFixed(3)} A ${r} ${r} 0 ${largeArc} 1 ${end.x.toFixed(3)} ${end.y.toFixed(3)}`
-}
 
 function ProgressGauge({
   solved,
@@ -609,90 +462,6 @@ function ListSelector({
   )
 }
 
-// ---- next up ----
-
-function pickNextUp(
-  problems: PracticeProblem[],
-  solvedIds: Set<string>,
-  seed: number
-): PracticeProblem | null {
-  const candidates = problems.filter((p) => !p.locked && !solvedIds.has(p.id))
-  const pool =
-    candidates.length > 0 ? candidates : problems.filter((p) => !p.locked)
-  if (pool.length === 0) return null
-  return pool[seed % pool.length]
-}
-
-function NextUpCard({
-  list,
-  solvedIds,
-}: {
-  list: PracticeList
-  solvedIds: Set<string>
-}) {
-  const accent = ACCENT[list.accent]
-  const [seed, setSeed] = useState(() => Math.floor(Math.random() * 1000))
-  const problems = useMemo(() => listProblems(list.id), [list.id])
-  const next = useMemo(
-    () => pickNextUp(problems, solvedIds, seed),
-    [problems, solvedIds, seed]
-  )
-  const topic = next ? practiceTopicById[next.topicId] : undefined
-
-  return (
-    <div className={cn(cardClass, "p-5")}>
-      <CardSheen />
-      <div className="relative flex h-full flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <IconTarget className={cn("size-4", accent.text)} />
-            <h3 className="text-sm font-semibold tracking-[-0.01em]">
-              Next up
-            </h3>
-          </div>
-          <button
-            type="button"
-            onClick={() => setSeed((s) => s + 1)}
-            aria-label="Pick another problem"
-            className="inline-flex size-7 items-center justify-center rounded-md border border-border/60 bg-background/40 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            <IconRefresh className="size-3.5" />
-          </button>
-        </div>
-
-        {next ? (
-          <a
-            href={`/problem/${next.id}`}
-            className="group flex flex-1 items-start justify-between gap-3 rounded-lg border border-border/60 bg-background/40 p-3 transition-colors hover:bg-muted/50 dark:bg-white/[0.01]"
-          >
-            <div className="min-w-0">
-              <h4 className="truncate text-sm font-semibold tracking-[-0.01em] group-hover:underline">
-                {next.title}
-              </h4>
-              <p className="mt-1 truncate text-[11px] text-muted-foreground">
-                {topic?.title ?? next.pattern}
-                {topic ? ` / ${next.pattern}` : ""}
-              </p>
-            </div>
-            <span
-              className={cn(
-                "shrink-0 font-mono text-[11px] font-semibold",
-                DIFF_TEXT[next.difficulty]
-              )}
-            >
-              {next.difficulty}
-            </span>
-          </a>
-        ) : (
-          <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-border/60 bg-background/40 p-4 text-center text-[12px] text-muted-foreground">
-            All caught up on this list.
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
 // ---- toolbar ----
 
 function FilterToolbar({
@@ -757,157 +526,6 @@ function ToolbarButton({
     >
       {children}
     </button>
-  )
-}
-
-// ---- problem table ----
-
-type TopicGroup = {
-  id: string
-  title: string
-  problems: PracticeProblem[]
-}
-
-const MOCK_PROBLEM_HREF = "/problem/two-sum"
-
-function buildGroups(problems: PracticeProblem[]): TopicGroup[] {
-  const byTopic = new Map<string, PracticeProblem[]>()
-  for (const p of problems) {
-    const arr = byTopic.get(p.topicId) ?? []
-    arr.push(p)
-    byTopic.set(p.topicId, arr)
-  }
-  return practiceTopics
-    .filter((t) => byTopic.has(t.id))
-    .map((t) => ({
-      id: t.id,
-      title: t.title,
-      problems: byTopic.get(t.id)!,
-    }))
-}
-
-function ProblemTable({
-  group,
-  solved,
-  onToggle,
-}: {
-  group: TopicGroup
-  solved: Set<string>
-  onToggle: (id: string) => void
-}) {
-  if (group.problems.length === 0) return null
-  const solvedCount = group.problems.reduce(
-    (n, p) => n + (solved.has(p.id) ? 1 : 0),
-    0
-  )
-  return (
-    <section aria-label={group.title} className={cn(cardClass, "p-0")}>
-      <div className="relative flex h-9 shrink-0 items-center justify-between gap-2 border-b border-border/40 bg-background/30 pr-3 pl-3">
-        <h3 className="text-sm font-semibold tracking-[-0.01em] text-foreground">
-          {group.title}
-        </h3>
-        <span className="font-mono text-[11px] tracking-[0.02em] text-muted-foreground">
-          {solvedCount}/{group.problems.length}
-        </span>
-      </div>
-      <div className="relative">
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border/40 hover:bg-transparent">
-              <TableHead className="w-[88px] pl-5 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                Status
-              </TableHead>
-              <TableHead className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                Problem
-              </TableHead>
-              <TableHead className="w-[140px] pr-5 text-right text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                Difficulty
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {group.problems.map((p) => {
-              const isSolved = solved.has(p.id)
-              const isLocked = !!p.locked
-              return (
-                <TableRow
-                  key={p.id}
-                  data-state={isSolved ? "selected" : undefined}
-                  aria-disabled={isLocked || undefined}
-                  className={cn(
-                    "border-border/40 transition-colors hover:bg-muted/30",
-                    isLocked && "opacity-50",
-                    "data-[state=selected]:bg-emerald-500/[0.04]"
-                  )}
-                >
-                  <TableCell className="w-[88px] p-0 align-middle">
-                    <button
-                      type="button"
-                      onClick={() => onToggle(p.id)}
-                      aria-label={`Toggle ${p.title} solved status`}
-                      aria-pressed={isSolved}
-                      disabled={isLocked}
-                      className={cn(
-                        "flex h-12 w-full items-center justify-center text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
-                        isLocked
-                          ? "cursor-not-allowed"
-                          : "cursor-pointer hover:bg-muted/35"
-                      )}
-                    >
-                      <span
-                        aria-hidden
-                        className={cn(
-                          "flex size-[18px] items-center justify-center rounded-full border border-input transition-colors",
-                          isSolved &&
-                            "border-emerald-500 bg-emerald-500 text-white"
-                        )}
-                      >
-                        {isSolved && <IconCircleCheck className="size-3.5" />}
-                      </span>
-                    </button>
-                  </TableCell>
-                  <TableCell
-                    className={cn(
-                      "p-0 text-sm font-medium transition-colors",
-                      isSolved &&
-                        "text-muted-foreground line-through decoration-emerald-500/40"
-                    )}
-                  >
-                    <Link
-                      href={MOCK_PROBLEM_HREF}
-                      className="flex h-12 min-w-0 items-center gap-2 px-2 transition-colors hover:text-primary"
-                      aria-label={`Open ${p.title}`}
-                    >
-                      {isLocked && (
-                        <IconLock
-                          aria-label="Pro"
-                          className="size-3.5 text-amber-500/80"
-                        />
-                      )}
-                      <span className="truncate">{p.title}</span>
-                    </Link>
-                  </TableCell>
-                  <TableCell
-                    className={cn(
-                      "p-0 text-right font-mono text-[11px] font-semibold",
-                      DIFF_TEXT[p.difficulty]
-                    )}
-                  >
-                    <Link
-                      href={MOCK_PROBLEM_HREF}
-                      className="flex h-12 items-center justify-end pr-5 transition-opacity hover:opacity-80"
-                      aria-label={`Open ${p.title}`}
-                    >
-                      {p.difficulty}
-                    </Link>
-                  </TableCell>
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
-      </div>
-    </section>
   )
 }
 
@@ -998,203 +616,6 @@ function CategoriesPanel() {
         </nav>
       </div>
     </aside>
-  )
-}
-
-// ---- calendar + ranking (right rail) ----
-
-function useCountdownToMidnight() {
-  const [text, setText] = useState("--:--:--")
-  useEffect(() => {
-    const update = () => {
-      const now = new Date()
-      const tomorrow = new Date(now)
-      tomorrow.setHours(24, 0, 0, 0)
-      const diff = Math.max(0, tomorrow.getTime() - now.getTime())
-      const h = Math.floor(diff / 3_600_000)
-      const m = Math.floor((diff % 3_600_000) / 60_000)
-      const s = Math.floor((diff % 60_000) / 1000)
-      setText([h, m, s].map((n) => String(n).padStart(2, "0")).join(":"))
-    }
-    update()
-    const id = setInterval(update, 1000)
-    return () => clearInterval(id)
-  }, [])
-  return text
-}
-
-type CalendarCell = { day: number; isToday: boolean; isPast: boolean } | null
-
-function buildCalendar(
-  viewYear: number,
-  viewMonth: number,
-  today: Date
-): CalendarCell[] {
-  const firstDay = new Date(viewYear, viewMonth, 1).getDay()
-  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate()
-  const isCurrentMonth =
-    today.getFullYear() === viewYear && today.getMonth() === viewMonth
-  const todayDate = today.getDate()
-
-  const cells: CalendarCell[] = []
-  for (let i = 0; i < firstDay; i++) cells.push(null)
-  for (let d = 1; d <= daysInMonth; d++) {
-    const isToday = isCurrentMonth && d === todayDate
-    const isPast = isCurrentMonth && d < todayDate
-    cells.push({ day: d, isToday, isPast: isPast && !isToday })
-  }
-  while (cells.length % 7 !== 0) cells.push(null)
-  return cells
-}
-
-function StreakBox({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode
-  label: string
-  value: string
-}) {
-  return (
-    <div className="rounded-lg border border-border/60 bg-background/40 p-2.5">
-      <div className="text-[10px] tracking-wide text-muted-foreground">
-        {label}
-      </div>
-      <div className="mt-1 flex items-center gap-1.5">
-        {icon}
-        <span className="text-sm font-semibold">{value}</span>
-      </div>
-    </div>
-  )
-}
-
-function CalendarCard() {
-  const today = new Date()
-  const [viewDate, setViewDate] = useState(
-    () => new Date(today.getFullYear(), today.getMonth(), 1)
-  )
-  const countdown = useCountdownToMidnight()
-
-  const year = viewDate.getFullYear()
-  const month = viewDate.getMonth()
-  const monthName = viewDate.toLocaleString("default", { month: "long" })
-  const cells = buildCalendar(year, month, today)
-  const isCurrentMonth =
-    today.getFullYear() === year && today.getMonth() === month
-
-  return (
-    <div className={cn(cardClass, "p-3.5")}>
-      <CardSheen />
-      <div className="relative">
-        <div className="flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => setViewDate(new Date(year, month - 1, 1))}
-            aria-label="Previous month"
-            className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            <IconChevronLeft className="size-4" />
-          </button>
-          <h3 className="text-sm font-semibold tracking-[-0.02em]">
-            {monthName} {year}
-          </h3>
-          <button
-            type="button"
-            onClick={() => setViewDate(new Date(year, month + 1, 1))}
-            aria-label="Next month"
-            className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            <IconChevronRight className="size-4" />
-          </button>
-        </div>
-
-        <div className="mt-3 flex items-baseline justify-between">
-          <span className="text-sm font-semibold">Day {today.getDate()}</span>
-          <span className="font-mono text-[11px] text-muted-foreground">
-            {countdown} left
-          </span>
-        </div>
-
-        <div className="mt-3 grid grid-cols-7 gap-1 text-center font-mono text-[10px] text-muted-foreground">
-          {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
-            <span key={i}>{d}</span>
-          ))}
-        </div>
-
-        <div className="mt-1.5 grid grid-cols-7 gap-1">
-          {cells.map((cell, i) => (
-            <div
-              key={i}
-              className="relative flex aspect-square items-center justify-center"
-            >
-              {cell && (
-                <>
-                  {cell.isPast && (
-                    <span
-                      aria-hidden
-                      className="absolute inset-[3px] rounded-full border border-dashed border-border/80 dark:border-white/15"
-                    />
-                  )}
-                  {cell.isToday && (
-                    <span
-                      aria-hidden
-                      className="absolute inset-[3px] rounded-full bg-primary/20 ring-2 ring-primary"
-                    />
-                  )}
-                  <span
-                    className={cn(
-                      "relative z-[1] font-mono text-[11px]",
-                      cell.isToday
-                        ? "font-semibold text-foreground"
-                        : "text-muted-foreground"
-                    )}
-                  >
-                    {cell.day}
-                  </span>
-                </>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          <StreakBox
-            icon={<IconFlame className="size-4 text-orange-500" />}
-            label="Current Streak"
-            value="0 days"
-          />
-          <StreakBox
-            icon={<IconTrophy className="size-4 text-yellow-500" />}
-            label="Best Streak"
-            value="0 days"
-          />
-        </div>
-
-        <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[11px] text-muted-foreground">
-          <IconInfoCircle className="size-3.5 shrink-0" />
-          <span>
-            {isCurrentMonth
-              ? "Solve one problem a day to keep your streak"
-              : "Viewing past or future month"}
-          </span>
-        </p>
-      </div>
-    </div>
-  )
-}
-
-function RankingCard() {
-  return (
-    <div className={cn(cardClass, "p-6")}>
-      <CardSheen />
-      <div className="relative flex flex-col items-center justify-center gap-2 py-4 text-center">
-        <IconChartLine className="size-5 text-muted-foreground" />
-        <p className="text-sm text-muted-foreground">
-          Sign in to see your ranking
-        </p>
-      </div>
-    </div>
   )
 }
 

@@ -26,6 +26,7 @@ export function ProblemWorkspace({ problem }: ProblemWorkspaceProps) {
             problemNumber={problem.number}
             title={problem.title}
             difficulty={problem.difficulty}
+            workspace={problem.workspace}
           />
         </Suspense>
       </main>

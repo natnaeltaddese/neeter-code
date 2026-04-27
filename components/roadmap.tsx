@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useEffect, useState, useCallback, useMemo } from "react"
+import { useRef, useEffect, useState, useCallback } from "react"
 import { cn } from "@/lib/utils"
 
 // --- Data ---
@@ -380,12 +380,8 @@ export function Roadmap() {
     setPaths(newPaths)
   }, [])
 
-  const throttledUpdatePaths = useMemo(
-    () => throttle(updatePaths, 16),
-    [updatePaths]
-  )
-
   useEffect(() => {
+    const throttledUpdatePaths = throttle(updatePaths, 16)
     const frame = requestAnimationFrame(throttledUpdatePaths)
     const observer = new ResizeObserver(throttledUpdatePaths)
     if (containerRef.current) observer.observe(containerRef.current)
@@ -393,7 +389,7 @@ export function Roadmap() {
       cancelAnimationFrame(frame)
       observer.disconnect()
     }
-  }, [throttledUpdatePaths])
+  }, [updatePaths])
 
   // Recalculate SVG paths after expand/collapse transition
   useEffect(() => {

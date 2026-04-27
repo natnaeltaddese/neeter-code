@@ -1,3 +1,4 @@
+import Image, { type ImageProps } from "next/image"
 import type { ComponentProps } from "react"
 
 import { cn } from "@/lib/utils"
@@ -59,16 +60,21 @@ export function TestimonialAvatar({
 
 export function TestimonialAvatarImg({
   className,
-  src,
   alt,
+  width = 32,
+  height = 32,
   ...props
-}: ComponentProps<"img">) {
+}: Omit<ImageProps, "width" | "height"> & {
+  width?: number
+  height?: number
+}) {
   return (
-    <img
+    <Image
       data-slot="testimonial-avatar-img"
       className={cn("size-8 rounded-full select-none", className)}
-      src={src}
       alt={alt}
+      width={width}
+      height={height}
       {...props}
     />
   )

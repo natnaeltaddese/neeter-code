@@ -3,6 +3,10 @@ import {
   practiceProblems,
   type Difficulty,
 } from "./practice"
+import {
+  getProblemWorkspaceContent,
+  type ProblemWorkspaceContent,
+} from "./problem-workspace"
 
 export type { Difficulty }
 
@@ -11,6 +15,7 @@ export type Problem = {
   number: number
   title: string
   difficulty: Difficulty
+  workspace: ProblemWorkspaceContent
 }
 
 export function getProblem(id: string): Problem {
@@ -22,6 +27,7 @@ export function getProblem(id: string): Problem {
       number: fallback.number,
       title: fallback.title,
       difficulty: fallback.difficulty,
+      workspace: getProblemWorkspaceContent(fallback.id),
     }
   }
 
@@ -30,5 +36,6 @@ export function getProblem(id: string): Problem {
     number: problem.number,
     title: problem.title,
     difficulty: problem.difficulty,
+    workspace: getProblemWorkspaceContent(problem.id),
   }
 }

@@ -153,7 +153,7 @@ function TestimonialCard({
       </div>
 
       <TestimonialQuote className="text-[0.9375rem] leading-[1.6] tracking-[-0.01em]">
-        "{testimonial.quote}"
+        &ldquo;{testimonial.quote}&rdquo;
       </TestimonialQuote>
 
       <TestimonialAuthor className="border-t border-border/30">

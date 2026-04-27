@@ -2,6 +2,7 @@
 
 import { IconCloudUpload, IconPlayerPlayFilled } from "@tabler/icons-react"
 import { useState } from "react"
+import type { ProblemTestCase } from "@/lib/problem-workspace"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import { PanelHeaderCollapseButton, PanelShell } from "./panel-shell"
@@ -9,19 +10,15 @@ import { PanelHeaderCollapseButton, PanelShell } from "./panel-shell"
 const TABS = ["Test Cases", "Console"] as const
 type Tab = (typeof TABS)[number]
 
-const DEMO_CASES = [
-  { label: "Case 1", input: "capacity = 1\nops = [push(1), get(0), pushback(2)]" },
-  { label: "Case 2", input: "capacity = 2\nops = [push(5), push(6), popback()]" },
-  { label: "Case 3", input: "capacity = 4\nops = [getCapacity(), push(9)]" },
-]
-
 export type ConsolePanelProps = {
+  testCases: ProblemTestCase[]
   onCollapse?: () => void
 }
 
-export function ConsolePanel({ onCollapse }: ConsolePanelProps) {
+export function ConsolePanel({ testCases, onCollapse }: ConsolePanelProps) {
   const [active, setActive] = useState<Tab>("Test Cases")
   const [activeCase, setActiveCase] = useState(0)
+  const selectedCase = testCases[activeCase] ?? testCases[0]
 
   return (
     <PanelShell
@@ -91,7 +88,7 @@ export function ConsolePanel({ onCollapse }: ConsolePanelProps) {
       {active === "Test Cases" ? (
         <div className="flex h-full flex-col gap-3 p-4">
           <div className="flex flex-wrap gap-1.5">
-            {DEMO_CASES.map((c, i) => (
+            {testCases.map((c, i) => (
               <button
                 key={c.label}
                 type="button"
@@ -111,9 +108,15 @@ export function ConsolePanel({ onCollapse }: ConsolePanelProps) {
             <p className="mb-1.5 font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
               Input
             </p>
-            <pre className="font-mono text-[0.8rem] leading-[1.7] text-foreground/85">
-              {DEMO_CASES[activeCase].input}
-            </pre>
+            {selectedCase ? (
+              <pre className="font-mono text-[0.8rem] leading-[1.7] text-foreground/85">
+                {selectedCase.input}
+              </pre>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No test cases configured.
+              </p>
+            )}
           </div>
         </div>
       ) : (

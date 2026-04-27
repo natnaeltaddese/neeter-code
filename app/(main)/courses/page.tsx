@@ -1,8 +1,5 @@
-"use client"
-
 import Image from "next/image"
 import Link from "next/link"
-import { useRef, useEffect, useState, useCallback } from "react"
 import { cn } from "@/lib/utils"
 import { getFirstChapter } from "@/lib/courses"
 import {
@@ -371,47 +368,6 @@ function EmptyState({
 // --- Page ---
 
 export default function CoursesPage() {
-  const sectionRefs = useRef<Map<Section, HTMLElement>>(new Map())
-  const [activeSection, setActiveSection] = useState<Section>("continue")
-  const isClickScrolling = useRef(false)
-
-  const scrollToSection = useCallback((id: Section) => {
-    const el = sectionRefs.current.get(id)
-    if (!el) return
-    isClickScrolling.current = true
-    setActiveSection(id)
-    el.scrollIntoView({ behavior: "smooth", block: "start" })
-    // Allow scroll spy to resume after smooth scroll finishes
-    setTimeout(() => {
-      isClickScrolling.current = false
-    }, 800)
-  }, [])
-
-  // Scroll spy via IntersectionObserver
-  useEffect(() => {
-    const elements = Array.from(sectionRefs.current.entries())
-    if (elements.length === 0) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (isClickScrolling.current) return
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            const id = elements.find(([, el]) => el === entry.target)?.[0]
-            if (id) setActiveSection(id)
-          }
-        }
-      },
-      { rootMargin: "-20% 0px -60% 0px" }
-    )
-
-    for (const [, el] of elements) {
-      observer.observe(el)
-    }
-
-    return () => observer.disconnect()
-  }, [])
-
   return (
     <div className="mx-auto max-w-7xl px-4 pt-8 pb-20">
       {/* Mobile nav */}
@@ -423,24 +379,16 @@ export default function CoursesPage() {
         )}
       >
         <div className="flex gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {sidebarItems.map((item) => {
-            const isActive = activeSection === item.id
-            return (
-              <button
-                key={item.id}
-                onClick={() => scrollToSection(item.id)}
-                className={cn(
-                  "inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-[0.8125rem] font-medium transition-colors",
-                  isActive
-                    ? "bg-primary/10 text-primary dark:bg-primary/20"
-                    : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                )}
-              >
-                <item.icon className="size-3.5" />
-                {item.label}
-              </button>
-            )
-          })}
+          {sidebarItems.map((item) => (
+            <Link
+              key={item.id}
+              href={`#${item.id}`}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-[0.8125rem] font-medium text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+            >
+              <item.icon className="size-3.5" />
+              {item.label}
+            </Link>
+          ))}
         </div>
         {/* Left fade */}
         <div className="pointer-events-none absolute inset-y-0 left-0 w-6 rounded-l-xl bg-gradient-to-r from-[rgba(245,245,246,0.9)] to-transparent dark:from-[rgba(28,28,30,0.9)]" />
@@ -460,24 +408,16 @@ export default function CoursesPage() {
             )}
           >
             <div className="flex flex-col gap-0.5">
-              {sidebarItems.map((item) => {
-                const isActive = activeSection === item.id
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => scrollToSection(item.id)}
-                    className={cn(
-                      "group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm font-medium transition-colors",
-                      isActive
-                        ? "bg-muted text-foreground"
-                        : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                    )}
-                  >
-                    <item.icon className="size-4 shrink-0" />
-                    <span className="flex-1 text-left">{item.label}</span>
-                  </button>
-                )
-              })}
+              {sidebarItems.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`#${item.id}`}
+                  className="group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+                >
+                  <item.icon className="size-4 shrink-0" />
+                  <span className="flex-1 text-left">{item.label}</span>
+                </Link>
+              ))}
             </div>
           </nav>
         </aside>
@@ -488,12 +428,7 @@ export default function CoursesPage() {
         {/* Main content — all sections continuous */}
         <main className="min-w-0 flex-1 space-y-16">
           {/* Continue */}
-          <section
-            ref={(el) => {
-              if (el) sectionRefs.current.set("continue", el)
-            }}
-            className="scroll-mt-24"
-          >
+          <section id="continue" className="scroll-mt-24">
             <h2
               className={cn(
                 "mb-6 font-heading font-bold",
@@ -521,12 +456,7 @@ export default function CoursesPage() {
           </section>
 
           {/* Courses */}
-          <section
-            ref={(el) => {
-              if (el) sectionRefs.current.set("courses", el)
-            }}
-            className="scroll-mt-24"
-          >
+          <section id="courses" className="scroll-mt-24">
             <h2
               className={cn(
                 "mb-8 font-heading font-bold",
@@ -572,12 +502,7 @@ export default function CoursesPage() {
           </section>
 
           {/* Lessons */}
-          <section
-            ref={(el) => {
-              if (el) sectionRefs.current.set("lessons", el)
-            }}
-            className="scroll-mt-24"
-          >
+          <section id="lessons" className="scroll-mt-24">
             <h2
               className={cn(
                 "mb-8 font-heading font-bold",
@@ -616,12 +541,7 @@ export default function CoursesPage() {
           </section>
 
           {/* Bookmarked */}
-          <section
-            ref={(el) => {
-              if (el) sectionRefs.current.set("bookmarked", el)
-            }}
-            className="scroll-mt-24"
-          >
+          <section id="bookmarked" className="scroll-mt-24">
             <h2
               className={cn(
                 "mb-6 font-heading font-bold",

@@ -1,4 +1,6 @@
-export type CodeEditorLanguage = "python" | "javascript" | "java" | "cpp"
+import type { WorkspaceLanguage } from "@/lib/problem-workspace"
+
+export type CodeEditorLanguage = WorkspaceLanguage
 
 export type CodeEditorProps = {
   value: string
