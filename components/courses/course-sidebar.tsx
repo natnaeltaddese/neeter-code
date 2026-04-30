@@ -14,6 +14,17 @@ type Props = {
 export function CourseSidebar({ course, onNavigate, className }: Props) {
   const pathname = usePathname()
 
+  const allChapters = course.sections.flatMap((section) => section.chapters)
+  const totalChapters = allChapters.length
+  const activeIndex = allChapters.findIndex(
+    (chapter) => pathname === `/courses/${course.slug}/${chapter.slug}`
+  )
+  const currentChapter = activeIndex >= 0 ? activeIndex + 1 : 0
+  const percent =
+    totalChapters > 0
+      ? Math.round((currentChapter / totalChapters) * 100)
+      : 0
+
   return (
     <div
       className={cn(
@@ -24,12 +35,35 @@ export function CourseSidebar({ course, onNavigate, className }: Props) {
       )}
     >
       <div className="border-b border-border/40 px-4 py-3">
-        <p className="font-mono text-[10px] font-medium tracking-[0.18em] text-muted-foreground uppercase">
-          Course
-        </p>
-        <h2 className="mt-1 truncate text-[0.8125rem] font-semibold tracking-[-0.01em] text-foreground">
-          {course.title}
-        </h2>
+        <div className="flex items-baseline justify-between gap-2">
+          <p className="font-mono text-[10px] font-medium tracking-[0.18em] text-muted-foreground uppercase">
+            Progress
+          </p>
+          <p className="font-mono text-[10px] font-medium tabular-nums text-muted-foreground">
+            <span className="text-foreground">{currentChapter}</span>
+            <span className="mx-0.5 text-muted-foreground/60">/</span>
+            {totalChapters}
+          </p>
+        </div>
+        <div
+          role="progressbar"
+          aria-valuenow={percent}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`Chapter ${currentChapter} of ${totalChapters}`}
+          className={cn(
+            "mt-2 h-1 w-full overflow-hidden rounded-full",
+            "bg-foreground/[0.06] dark:bg-white/[0.06]"
+          )}
+        >
+          <div
+            className={cn(
+              "h-full rounded-full bg-foreground/80 transition-[width] duration-300 ease-out",
+              "dark:bg-foreground"
+            )}
+            style={{ width: `${percent}%` }}
+          />
+        </div>
       </div>
 
       <nav className="min-h-0 flex-1 overflow-y-auto p-2">
