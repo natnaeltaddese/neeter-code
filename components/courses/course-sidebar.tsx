@@ -34,7 +34,7 @@ export function CourseSidebar({ course, onNavigate, className }: Props) {
         className
       )}
     >
-      <div className="border-b border-border/40 px-4 py-3">
+      <div className="border-b border-border/40 py-3 pr-10 pl-4 md:pr-4">
         <div className="flex items-baseline justify-between gap-2">
           <p className="font-mono text-[10px] font-medium tracking-[0.18em] text-muted-foreground uppercase">
             Progress
