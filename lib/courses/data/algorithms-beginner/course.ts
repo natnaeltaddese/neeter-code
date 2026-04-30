@@ -62,6 +62,8 @@ export const algorithmsBeginner: Course = {
           durationMin: 1,
           isFree: true,
           hasVideo: true,
+          videoUrl:
+            "https://player.vimeo.com/video/741856436?h=5426746fca&badge=0&autopause=0&player_id=0&app_id=58479",
           mdx: ch00,
         },
       ],

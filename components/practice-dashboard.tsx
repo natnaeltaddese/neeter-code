@@ -679,7 +679,7 @@ export function PracticeDashboard() {
     <div className="mx-auto w-full max-w-[1400px] px-4 pt-8 pb-20 lg:px-6">
       <div className="grid gap-4 lg:grid-cols-[240px_minmax(0,1fr)_320px]">
         {/* Left rail */}
-        <div className="lg:sticky lg:top-[106px] lg:self-start">
+        <div className="lg:sticky lg:top-[5.5rem] lg:self-start">
           <CategoriesPanel />
         </div>
 

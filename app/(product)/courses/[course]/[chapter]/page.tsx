@@ -56,7 +56,7 @@ export default async function ChapterPage({
     >
       {chapter.hasVideo && (
         <div className={cn(toc.length > 0 && "xl:col-span-2")}>
-          <VideoPlayerSkeleton />
+          <VideoPlayerSkeleton src={chapter.videoUrl} title={chapter.title} />
         </div>
       )}
 

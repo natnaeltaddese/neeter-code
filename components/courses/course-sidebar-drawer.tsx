@@ -18,9 +18,9 @@ export function CourseSidebarDrawer({ course }: { course: Course }) {
   return (
     <div
       className={cn(
-        "mx-auto mb-8 max-w-sm rounded-xl border border-border/40 bg-[#f5f5f6]/90 p-1.5 backdrop-blur-sm md:hidden",
+        "mx-auto mb-8 max-w-sm rounded-xl border border-border/40 bg-[#f5f5f6] p-1.5 md:hidden",
         "shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)]",
-        "dark:bg-background/90 dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]"
+        "dark:bg-background dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]"
       )}
     >
       <Sheet open={open} onOpenChange={setOpen}>

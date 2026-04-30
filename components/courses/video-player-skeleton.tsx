@@ -1,7 +1,13 @@
 import { IconPlayerPlayFilled } from "@tabler/icons-react"
 import { cn } from "@/lib/utils"
 
-export function VideoPlayerSkeleton() {
+export function VideoPlayerSkeleton({
+  src,
+  title = "Course video",
+}: {
+  src?: string
+  title?: string
+}) {
   return (
     <div
       className={cn(
@@ -10,17 +16,27 @@ export function VideoPlayerSkeleton() {
         "dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]"
       )}
     >
-      {/* Play button */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div
-          className={cn(
-            "flex size-14 items-center justify-center rounded-full border border-border/40 bg-background/90 backdrop-blur-sm",
-            "shadow-[0_2px_12px_rgba(0,0,0,0.08)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.3)]"
-          )}
-        >
-          <IconPlayerPlayFilled className="size-5 translate-x-0.5 text-primary" />
+      {src ? (
+        <iframe
+          src={src}
+          title={title}
+          allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
+          allowFullScreen
+          className="absolute inset-0 size-full"
+        />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div
+            className={cn(
+              "flex size-14 items-center justify-center rounded-full border border-border/40 bg-background/90 backdrop-blur-sm",
+              "shadow-[0_2px_12px_rgba(0,0,0,0.08)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.3)]"
+            )}
+          >
+            <IconPlayerPlayFilled className="size-5 translate-x-0.5 text-primary" />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

@@ -7,6 +7,7 @@ export type Chapter = {
   durationMin: number
   isFree?: boolean
   hasVideo?: boolean
+  videoUrl?: string
   mdx: string
 }
 

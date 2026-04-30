@@ -39,7 +39,7 @@ export default async function CourseLayout({
   if (!course) notFound()
 
   return (
-    <div className="mx-auto max-w-7xl px-4 pt-8 pb-20 md:flex md:h-[calc(100dvh-74px)] md:flex-col md:overflow-hidden md:pb-4">
+    <div className="mx-auto w-full max-w-[1400px] px-4 pt-8 pb-20 md:flex md:h-[calc(100dvh-3.5rem)] md:flex-col md:overflow-hidden md:pb-4 lg:px-6">
       {/* Breadcrumb */}
       <nav
         aria-label="Breadcrumb"

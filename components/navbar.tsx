@@ -41,7 +41,7 @@ export function Navbar() {
 
   return (
     <div className="sticky top-0 z-40 w-full px-4 pt-4">
-      <header className="relative mx-auto max-w-5xl overflow-hidden rounded-xl border border-border/40 bg-[#f5f5f6]/90 shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)] backdrop-blur-sm will-change-transform dark:bg-background/90 dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]">
+      <header className="relative mx-auto max-w-5xl overflow-hidden rounded-xl border border-border/40 bg-[#f5f5f6] shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)] will-change-transform md:bg-[#f5f5f6]/90 md:backdrop-blur-sm dark:bg-background md:dark:bg-background/90 dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]">
         <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-b from-white/[0.02] to-transparent" />
 
         <div className="relative flex h-14 items-center justify-between gap-4 px-4">

@@ -2,11 +2,10 @@ import Image from "next/image"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { getFirstChapter } from "@/lib/courses"
+import { CourseSectionMenu } from "@/components/courses/course-section-menu"
 import {
-  IconPlayerPlay,
   IconBookmark,
   IconHistory,
-  IconSchool,
 } from "@tabler/icons-react"
 
 // --- Data ---
@@ -217,16 +216,6 @@ const difficultyConfig: Record<
   },
 }
 
-type Section = "continue" | "courses" | "lessons" | "bookmarked"
-
-const sidebarItems: { id: Section; label: string; icon: typeof IconSchool }[] =
-  [
-    { id: "continue", label: "Continue", icon: IconHistory },
-    { id: "courses", label: "Courses", icon: IconSchool },
-    { id: "lessons", label: "Lessons", icon: IconPlayerPlay },
-    { id: "bookmarked", label: "Bookmarked", icon: IconBookmark },
-  ]
-
 // --- Components ---
 
 function CourseCard({ course }: { course: Course }) {
@@ -369,63 +358,12 @@ function EmptyState({
 
 export default function CoursesPage() {
   return (
-    <div className="mx-auto max-w-7xl px-4 pt-8 pb-20">
-      {/* Mobile nav */}
-      <div
-        className={cn(
-          "sticky top-[106px] z-30 mx-auto mb-8 max-w-sm rounded-xl border border-border/40 bg-[#f5f5f6]/90 p-1.5 backdrop-blur-sm md:hidden",
-          "shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)]",
-          "dark:bg-background/90 dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]"
-        )}
-      >
-        <div className="flex gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {sidebarItems.map((item) => (
-            <Link
-              key={item.id}
-              href={`#${item.id}`}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-[0.8125rem] font-medium text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
-            >
-              <item.icon className="size-3.5" />
-              {item.label}
-            </Link>
-          ))}
+    <div className="mx-auto w-full max-w-[1400px] px-4 pt-8 pb-20 lg:px-6">
+      <div className="grid gap-4 lg:grid-cols-[240px_minmax(0,1fr)]">
+        <div className="lg:sticky lg:top-[5.5rem] lg:self-start">
+          <CourseSectionMenu />
         </div>
-        {/* Left fade */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-6 rounded-l-xl bg-gradient-to-r from-[rgba(245,245,246,0.9)] to-transparent dark:from-[rgba(28,28,30,0.9)]" />
-        {/* Right fade */}
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-6 rounded-r-xl bg-gradient-to-l from-[rgba(245,245,246,0.9)] to-transparent dark:from-[rgba(28,28,30,0.9)]" />
-      </div>
 
-      <div className="flex gap-0 md:gap-10">
-        {/* Desktop sidebar */}
-        <aside className="hidden w-52 shrink-0 md:block">
-          <nav
-            aria-label="Courses sections"
-            className={cn(
-              "sticky top-[106px] rounded-xl border border-border/40 bg-[#f5f5f6] p-2",
-              "shadow-[0_2px_12px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.5)]",
-              "dark:bg-white/[0.02] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.04)]"
-            )}
-          >
-            <div className="flex flex-col gap-0.5">
-              {sidebarItems.map((item) => (
-                <Link
-                  key={item.id}
-                  href={`#${item.id}`}
-                  className="group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
-                >
-                  <item.icon className="size-4 shrink-0" />
-                  <span className="flex-1 text-left">{item.label}</span>
-                </Link>
-              ))}
-            </div>
-          </nav>
-        </aside>
-
-        {/* Vertical separator */}
-        <div className="hidden w-px bg-border/40 md:block" />
-
-        {/* Main content — all sections continuous */}
         <main className="min-w-0 flex-1 space-y-16">
           {/* Continue */}
           <section id="continue" className="scroll-mt-24">
