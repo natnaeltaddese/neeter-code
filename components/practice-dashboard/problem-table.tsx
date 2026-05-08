@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { IconCircleCheck, IconLock } from "@tabler/icons-react"
+import { useState } from "react"
+import { IconChevronDown, IconCircleCheck, IconLock } from "@tabler/icons-react"
 import {
   Table,
   TableBody,
@@ -47,6 +48,8 @@ export function ProblemTable({
   solved: Set<string>
   onToggle: (id: string) => void
 }) {
+  const [open, setOpen] = useState(true)
+
   if (group.problems.length === 0) return null
   const solvedCount = group.problems.reduce(
     (n, p) => n + (solved.has(p.id) ? 1 : 0),
@@ -55,14 +58,34 @@ export function ProblemTable({
 
   return (
     <section aria-label={group.title} className={cn(cardClass, "p-0")}>
-      <div className="relative flex h-9 shrink-0 items-center justify-between gap-2 border-b border-border/40 bg-background/30 pr-3 pl-3">
-        <h3 className="text-sm font-semibold tracking-[-0.01em] text-foreground">
-          {group.title}
-        </h3>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="relative flex h-9 w-full shrink-0 items-center justify-between gap-2 border-b border-border/40 bg-background/30 pr-3 pl-3 transition-colors hover:bg-muted/30"
+      >
+        <div className="flex items-center gap-2">
+          <IconChevronDown
+            className={cn(
+              "size-3.5 shrink-0 text-muted-foreground transition-transform duration-200",
+              !open && "-rotate-90"
+            )}
+          />
+          <h3 className="text-sm font-semibold tracking-[-0.01em] text-foreground">
+            {group.title}
+          </h3>
+        </div>
         <span className="font-mono text-[11px] tracking-[0.02em] text-muted-foreground">
           {solvedCount}/{group.problems.length}
         </span>
-      </div>
+      </button>
+      <div
+        className={cn(
+          "grid transition-all duration-200 ease-out",
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        )}
+      >
+      <div className="overflow-hidden">
       <div className="relative">
         <Table>
           <TableHeader>
@@ -159,6 +182,8 @@ export function ProblemTable({
             })}
           </TableBody>
         </Table>
+      </div>
+      </div>
       </div>
     </section>
   )

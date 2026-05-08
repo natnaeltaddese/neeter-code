@@ -5,14 +5,8 @@ import {
   IconArrowsShuffle,
   IconBolt,
   IconBookmark,
-  IconBox,
-  IconBrain,
   IconChartBar,
-  IconChevronDown,
   IconCircleCheck,
-  IconCode,
-  IconCpu,
-  IconDatabase,
   IconHelpCircle,
   IconLayoutGrid,
   IconPercentage,
@@ -45,34 +39,6 @@ import {
   tallySolved,
   type Stats,
 } from "./practice-dashboard/shared"
-
-// ---- left-rail categories ----
-
-type Category = {
-  id: string
-  label: string
-  icon: React.ComponentType<{ className?: string }>
-  badge?: string
-  children?: { id: string; label: string }[]
-}
-
-const categories: Category[] = [
-  {
-    id: "coding",
-    label: "Coding Interviews",
-    icon: IconCode,
-    children: [
-      { id: "problems", label: "Problems" },
-      { id: "company-tagged", label: "Company Tagged" },
-      { id: "cheatsheets", label: "Cheatsheets" },
-      { id: "quizzes", label: "Quizzes" },
-    ],
-  },
-  { id: "system-design", label: "System Design", icon: IconBox },
-  { id: "ml", label: "Machine Learning", icon: IconBrain, badge: "NEW" },
-  { id: "lld", label: "Low Level Design", icon: IconCpu },
-  { id: "databases", label: "Databases", icon: IconDatabase },
-]
 
 // ---- gauge ----
 
@@ -529,96 +495,6 @@ function ToolbarButton({
   )
 }
 
-// ---- left categories panel ----
-
-function CategoriesPanel() {
-  const [activeId, setActiveId] = useState("problems")
-  const [openId, setOpenId] = useState<string | null>("coding")
-
-  return (
-    <aside aria-label="Practice categories" className={cn(cardClass, "p-2")}>
-      <CardSheen />
-      <div className="relative">
-        <nav className="flex flex-col gap-0.5">
-          {categories.map((cat) => {
-            const Icon = cat.icon
-            const isActive = activeId === cat.id
-            const isOpen = openId === cat.id
-            const hasChildren = !!cat.children?.length
-
-            return (
-              <div key={cat.id}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveId(cat.id)
-                    if (hasChildren) setOpenId(isOpen ? null : cat.id)
-                  }}
-                  aria-expanded={hasChildren ? isOpen : undefined}
-                  className={cn(
-                    "group flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors",
-                    isActive
-                      ? "bg-muted text-foreground"
-                      : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                  )}
-                >
-                  <Icon className="size-4 shrink-0" />
-                  <span className="flex-1 text-left">{cat.label}</span>
-                  {cat.badge && (
-                    <span className="rounded-md bg-amber-500/15 px-1.5 py-0.5 font-mono text-[9px] font-semibold tracking-wide text-amber-500 uppercase">
-                      {cat.badge}
-                    </span>
-                  )}
-                  {hasChildren && (
-                    <IconChevronDown
-                      className={cn(
-                        "size-3.5 shrink-0 transition-transform",
-                        isOpen && "rotate-180"
-                      )}
-                    />
-                  )}
-                </button>
-
-                {hasChildren && (
-                  <div
-                    className={cn(
-                      "grid transition-all duration-200 ease-out",
-                      isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-                    )}
-                  >
-                    <div className="overflow-hidden">
-                      <div className="mt-0.5 ml-4 flex flex-col gap-0.5 border-l border-border/60 pl-2">
-                        {cat.children!.map((child) => {
-                          const childActive = activeId === child.id
-                          return (
-                            <button
-                              key={child.id}
-                              type="button"
-                              onClick={() => setActiveId(child.id)}
-                              className={cn(
-                                "rounded-md px-2.5 py-1.5 text-left text-[13px] transition-colors",
-                                childActive
-                                  ? "bg-muted text-foreground"
-                                  : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                              )}
-                            >
-                              {child.label}
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )
-          })}
-        </nav>
-      </div>
-    </aside>
-  )
-}
-
 // ---- main panel ----
 
 export function PracticeDashboard() {
@@ -676,65 +552,58 @@ export function PracticeDashboard() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1400px] px-4 pt-8 pb-20 lg:px-6">
-      <div className="grid gap-4 lg:grid-cols-[240px_minmax(0,1fr)_320px]">
-        {/* Left rail */}
-        <div className="lg:sticky lg:top-[5.5rem] lg:self-start">
-          <CategoriesPanel />
-        </div>
-
-        {/* Center column */}
-        <div className="flex min-w-0 flex-col gap-4">
-          <HeroCard
-            list={activeList}
-            stats={stats}
-            solved={solvedStats}
-            freeCount={freeCount}
-            savedCount={0}
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+      {/* Center column */}
+      <div className="flex min-w-0 flex-col gap-4">
+        <HeroCard
+          list={activeList}
+          stats={stats}
+          solved={solvedStats}
+          freeCount={freeCount}
+          savedCount={0}
+        />
+        <ListSelector
+          activeId={activeList.id}
+          onSelect={setActiveListId}
+          solvedIds={solvedIds}
+        />
+        <div className="mt-4 flex flex-col gap-4">
+          <FilterToolbar
+            query={query}
+            setQuery={setQuery}
+            onClear={clearProgress}
+            onShuffle={shuffle}
           />
-          <ListSelector
-            activeId={activeList.id}
-            onSelect={setActiveListId}
-            solvedIds={solvedIds}
-          />
-          <div className="mt-4 flex flex-col gap-4">
-            <FilterToolbar
-              query={query}
-              setQuery={setQuery}
-              onClear={clearProgress}
-              onShuffle={shuffle}
-            />
-            {filteredGroups.length === 0 ? (
-              <div
-                className={cn(
-                  cardClass,
-                  "p-10 text-center text-sm text-muted-foreground"
-                )}
-              >
-                No problems match your search.
-              </div>
-            ) : (
-              <div className="flex flex-col gap-6">
-                {filteredGroups.map((g) => (
-                  <ProblemTable
-                    key={g.id}
-                    group={g}
-                    solved={solvedIds}
-                    onToggle={toggleSolved}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+          {filteredGroups.length === 0 ? (
+            <div
+              className={cn(
+                cardClass,
+                "p-10 text-center text-sm text-muted-foreground"
+              )}
+            >
+              No problems match your search.
+            </div>
+          ) : (
+            <div className="flex flex-col gap-6">
+              {filteredGroups.map((g) => (
+                <ProblemTable
+                  key={g.id}
+                  group={g}
+                  solved={solvedIds}
+                  onToggle={toggleSolved}
+                />
+              ))}
+            </div>
+          )}
         </div>
+      </div>
 
-        {/* Right rail */}
-        <div className="flex flex-col gap-4">
-          <GaugeCard list={activeList} stats={stats} solved={solvedStats} />
-          <NextUpCard list={activeList} solvedIds={solvedIds} />
-          <CalendarCard />
-          <RankingCard />
-        </div>
+      {/* Right rail */}
+      <div className="flex flex-col gap-4">
+        <GaugeCard list={activeList} stats={stats} solved={solvedStats} />
+        <NextUpCard list={activeList} solvedIds={solvedIds} />
+        <CalendarCard />
+        <RankingCard />
       </div>
     </div>
   )
