@@ -1,5 +1,5 @@
-import { ComingSoon } from "@/components/practice-dashboard/coming-soon"
+import { BuildGptDashboard } from "@/components/build-gpt-dashboard"
 
 export default function BuildYourGPTPage() {
-  return <ComingSoon title="Build Your GPT" />
+  return <BuildGptDashboard />
 }
