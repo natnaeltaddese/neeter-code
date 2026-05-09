@@ -557,8 +557,8 @@ function GaugeCard({
             Build Your GPT
           </h3>
         </div>
-        <div className="flex flex-1 items-center justify-between gap-4">
-          <div className="flex min-w-[130px] flex-col gap-2">
+        <div className="flex flex-1 flex-col items-center gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 w-full flex-1 flex-col gap-2">
             {sections.map((s) => {
               const done = solvedMap[s.id] ?? 0
               return (
@@ -708,6 +708,8 @@ function TrackerPanel({
 
 // ---- file tree ----
 
+const TREE_INDENT = 16 // px per depth level
+
 type FileEntry = {
   kind: "file"
   name: string
@@ -724,6 +726,27 @@ type FolderEntry = {
 }
 
 type TreeEntry = FileEntry | FolderEntry
+
+function countFolderProgress(
+  folder: FolderEntry,
+  solvedIds: Set<string>
+): { solved: number; total: number } {
+  let total = 0
+  let solved = 0
+  for (const child of folder.children) {
+    if (child.kind === "file") {
+      if (child.problemId) {
+        total++
+        if (solvedIds.has(child.problemId)) solved++
+      }
+    } else {
+      const inner = countFolderProgress(child, solvedIds)
+      total += inner.total
+      solved += inner.solved
+    }
+  }
+  return { solved, total }
+}
 
 const FILE_TREE: FolderEntry = {
   kind: "folder",
@@ -798,32 +821,42 @@ function FileRow({
   const solved = !!entry.problemId && solvedIds.has(entry.problemId)
   const solvedColor = "#10b981"
   const mutedColor = "#6b7280"
-  const FileIcon = entry.name.endsWith(".py")
-    ? <SvgIcon svg={pythonIcon.variants.mono} color={solved ? solvedColor : "#3776AB"} />
-    : entry.name.endsWith(".md")
-    ? <SvgIcon svg={markdownIcon.variants.mono} color={solved ? solvedColor : mutedColor} />
-    : <IconFile className="size-3.5 shrink-0" style={{ color: solved ? solvedColor : mutedColor }} />
+  const icon = entry.name.endsWith(".py") ? (
+    <SvgIcon svg={pythonIcon.variants.mono} color={solved ? solvedColor : "#3776AB"} />
+  ) : entry.name.endsWith(".md") ? (
+    <SvgIcon svg={markdownIcon.variants.mono} color={solved ? solvedColor : mutedColor} />
+  ) : (
+    <IconFile className="size-3.5 shrink-0" style={{ color: solved ? solvedColor : mutedColor }} />
+  )
 
   return (
     <div
-      className="flex items-center gap-2 py-1.5 pr-4 transition-colors hover:bg-zinc-200/60 dark:hover:bg-white/[0.04]"
-      style={{ paddingLeft: `${depth * 1.25 + 1}rem` }}
+      className={cn(
+        "flex w-full items-center gap-2 py-[5px] pr-3 transition-colors",
+        "hover:bg-zinc-200/70 dark:hover:bg-white/[0.05]",
+        solved && "hover:bg-emerald-500/[0.06] dark:hover:bg-emerald-500/[0.05]"
+      )}
+      style={{ paddingLeft: `${depth * TREE_INDENT + 8}px` }}
     >
-      <span className="shrink-0">{FileIcon}</span>
+      <span className="shrink-0">{icon}</span>
       <span
         className={cn(
-          "flex-1 font-mono text-[13px]",
-          solved ? "text-emerald-500" : "text-foreground/80"
+          "min-w-0 flex-1 truncate font-mono text-[12.5px]",
+          solved ? "text-emerald-500" : "text-zinc-600 dark:text-zinc-300"
         )}
       >
         {entry.name}
       </span>
       {entry.auto ? (
-        <span className="rounded border border-border/50 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
-          auto-generated
+        <span className="hidden shrink-0 rounded border border-zinc-300 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400 dark:border-border/40 dark:text-muted-foreground/60 sm:block">
+          auto
+        </span>
+      ) : solved ? (
+        <span className="hidden shrink-0 font-mono text-[11px] text-emerald-500/70 sm:block">
+          done
         </span>
       ) : entry.label ? (
-        <span className="font-mono text-[12px] text-muted-foreground">
+        <span className="hidden max-w-[160px] shrink-0 truncate font-mono text-[11px] text-zinc-400 dark:text-muted-foreground/50 sm:block">
           {entry.label}
         </span>
       ) : null}
@@ -841,18 +874,25 @@ function FolderRow({
   solvedIds: Set<string>
 }) {
   const [open, setOpen] = useState(entry.defaultOpen ?? false)
+  const { solved, total } = useMemo(
+    () => countFolderProgress(entry, solvedIds),
+    [entry, solvedIds]
+  )
+
+  // guide line sits under the center of the folder icon
+  const guideLeft = depth * TREE_INDENT + 12
 
   return (
     <div>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center gap-1.5 py-1.5 pr-4 transition-colors hover:bg-zinc-200/60 dark:hover:bg-white/[0.04]"
-        style={{ paddingLeft: `${depth * 1.25 + 0.25}rem` }}
+        className="group flex w-full items-center gap-1.5 py-[5px] pr-3 transition-colors hover:bg-zinc-200/70 dark:hover:bg-white/[0.05]"
+        style={{ paddingLeft: `${depth * TREE_INDENT + 4}px` }}
       >
         <IconChevronRight
           className={cn(
-            "size-3.5 shrink-0 text-muted-foreground/50 transition-transform duration-150",
+            "size-3 shrink-0 text-zinc-400/60 transition-transform duration-200 dark:text-white/30",
             open && "rotate-90"
           )}
         />
@@ -861,16 +901,39 @@ function FolderRow({
         ) : (
           <IconFolder className="size-3.5 shrink-0 text-blue-400" />
         )}
-        <span className="font-mono text-[13px] font-medium">{entry.name}</span>
-      </button>
-      {open &&
-        entry.children.map((child, i) =>
-          child.kind === "file" ? (
-            <FileRow key={i} entry={child} depth={depth + 1} solvedIds={solvedIds} />
-          ) : (
-            <FolderRow key={i} entry={child} depth={depth + 1} solvedIds={solvedIds} />
-          )
+        <span className="font-mono text-[12.5px] font-medium text-zinc-700 dark:text-zinc-200">
+          {entry.name}
+        </span>
+        {total > 0 && (
+          <span className="ml-auto font-mono text-[11px] tabular-nums text-zinc-400 dark:text-white/30">
+            {solved}/{total}
+          </span>
         )}
+      </button>
+
+      {/* animated collapse with tree-line guide */}
+      <div
+        className={cn(
+          "grid transition-all duration-200 ease-out",
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        )}
+      >
+        <div className="overflow-hidden">
+          <div className="relative">
+            <div
+              className="pointer-events-none absolute bottom-0 top-0 w-px bg-zinc-300/80 dark:bg-white/[0.07]"
+              style={{ left: `${guideLeft}px` }}
+            />
+            {entry.children.map((child, i) =>
+              child.kind === "file" ? (
+                <FileRow key={i} entry={child} depth={depth + 1} solvedIds={solvedIds} />
+              ) : (
+                <FolderRow key={i} entry={child} depth={depth + 1} solvedIds={solvedIds} />
+              )
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -878,6 +941,10 @@ function FolderRow({
 function ProjectTreeCard({ solvedIds }: { solvedIds: Set<string> }) {
   const root = FILE_TREE
   const [rootOpen, setRootOpen] = useState(true)
+  const { solved: rootSolved, total: rootTotal } = useMemo(
+    () => countFolderProgress(root, solvedIds),
+    [root, solvedIds]
+  )
 
   return (
     <div className={cn(cardClass, "overflow-hidden")}>
@@ -906,25 +973,35 @@ function ProjectTreeCard({ solvedIds }: { solvedIds: Set<string> }) {
 
       {/* dark tree area */}
       <div className="bg-zinc-100 dark:bg-zinc-950">
-        {/* root folder header */}
+        {/* root folder row */}
         <button
           type="button"
           onClick={() => setRootOpen((o) => !o)}
-          className="flex w-full items-center gap-1.5 border-b border-zinc-200 px-4 py-2 transition-colors hover:bg-zinc-200/60 dark:border-white/[0.06] dark:hover:bg-white/[0.04]"
+          className="flex w-full items-center gap-1.5 border-b border-zinc-200 px-3 py-2 transition-colors hover:bg-zinc-200/60 dark:border-white/[0.06] dark:hover:bg-white/[0.04]"
         >
           <IconChevronRight
             className={cn(
-              "size-3.5 shrink-0 text-zinc-400 transition-transform duration-150 dark:text-white/30",
+              "size-3 shrink-0 text-zinc-400 transition-transform duration-200 dark:text-white/30",
               rootOpen && "rotate-90"
             )}
           />
           <IconFolderOpen className="size-3.5 shrink-0 text-blue-400" />
-          <span className="font-mono text-[13px] font-semibold text-zinc-700 dark:text-white/80">{root.name}</span>
+          <span className="font-mono text-[13px] font-semibold text-zinc-700 dark:text-white/80">
+            {root.name}
+          </span>
+          <span className="ml-auto font-mono text-[11px] tabular-nums text-zinc-400 dark:text-white/30">
+            {rootSolved}/{rootTotal}
+          </span>
         </button>
 
-        {/* tree body */}
-        {rootOpen && (
-          <div className="divide-y divide-zinc-200 dark:divide-white/[0.05]">
+        {/* animated tree body — no divide-y */}
+        <div
+          className={cn(
+            "grid transition-all duration-200 ease-out",
+            rootOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+          )}
+        >
+          <div className="overflow-hidden">
             {root.children.map((child, i) =>
               child.kind === "file" ? (
                 <FileRow key={i} entry={child} depth={1} solvedIds={solvedIds} />
@@ -933,7 +1010,7 @@ function ProjectTreeCard({ solvedIds }: { solvedIds: Set<string> }) {
               )
             )}
           </div>
-        )}
+        </div>
 
         {/* download footer */}
         <div className="flex items-center justify-between gap-4 border-t border-zinc-200 px-4 py-3 dark:border-white/[0.06]">
@@ -1079,7 +1156,7 @@ export function BuildGptDashboard() {
         <ProjectTreeCard solvedIds={solvedIds} />
         <ContinueJourney />
       </div>
-      <div className="flex flex-col gap-4">
+      <div className="flex min-w-0 flex-col gap-4">
         <GaugeCard
           solved={totalSolved}
           total={totalProblems}
