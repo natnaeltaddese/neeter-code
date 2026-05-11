@@ -6,6 +6,7 @@ import {
   IconBolt,
   IconBookmark,
   IconChartBar,
+  IconChevronDown,
   IconCircleCheck,
   IconHelpCircle,
   IconLayoutGrid,
@@ -14,6 +15,7 @@ import {
   IconTarget,
   IconTrash,
 } from "@tabler/icons-react"
+import { Select } from "@base-ui/react/select"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import {
@@ -335,64 +337,28 @@ function GaugeCard({
 
 // ---- problem-set selector ----
 
-function ListCard({
-  list,
-  total,
-  solvedCount,
-  active,
-  onSelect,
-}: {
-  list: PracticeList
-  total: number
-  solvedCount: number
-  active: boolean
-  onSelect: () => void
-}) {
-  const accent = ACCENT[list.accent]
-  const percent = total > 0 ? (solvedCount / total) * 100 : 0
+const LIST_EMOJI: Record<string, string> = {
+  "core-skills": "📚",
+  "blind-75": "🧠",
+  "neetcode-150": "🚀",
+  "neetcode-200": "🦄",
+  "neetcode-all": "🌍",
+}
 
+const CORE_ID = "core-skills"
+
+const tabItemClass = cn(
+  "inline-flex h-8 items-center gap-2 rounded-md border border-transparent px-2.5 text-sm font-medium whitespace-nowrap text-foreground/60 transition-colors",
+  "hover:text-foreground",
+  "data-[active]:bg-background data-[active]:text-foreground data-[active]:shadow-sm",
+  "dark:data-[active]:border-input dark:data-[active]:bg-input/30 dark:data-[active]:text-foreground"
+)
+
+function ListEmoji({ id, className }: { id: string; className?: string }) {
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      aria-pressed={active}
-      className={cn(
-        cardClass,
-        "group flex min-h-[104px] flex-col p-3 text-left transition-[border-color,box-shadow] duration-300 hover:border-border/70 hover:shadow-[0_8px_28px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_8px_28px_rgba(0,0,0,0.32)]",
-        active && "border-primary/50"
-      )}
-    >
-      <CardSheen />
-      <div
-        aria-hidden
-        className={cn(
-          "absolute inset-x-0 top-0 h-19 bg-gradient-to-b opacity-90",
-          accent.tint,
-          "to-transparent"
-        )}
-      />
-      <div className="relative flex min-h-0 flex-1 flex-col">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <h4 className="truncate text-sm font-semibold tracking-[-0.02em]">
-              {list.title}
-            </h4>
-            <p className="mt-1 h-8 overflow-hidden text-[12px] leading-4 text-muted-foreground">
-              {list.description}
-            </p>
-          </div>
-          <span className="shrink-0 font-mono text-[11px] text-muted-foreground tabular-nums">
-            {solvedCount}/{total}
-          </span>
-        </div>
-        <div className="mt-auto h-1.5 overflow-hidden rounded-full bg-muted">
-          <div
-            className={cn("h-full rounded-full transition-all", accent.bar)}
-            style={{ width: `${percent}%` }}
-          />
-        </div>
-      </div>
-    </button>
+    <span aria-hidden className={cn("text-base leading-none", className)}>
+      {LIST_EMOJI[id] ?? "📁"}
+    </span>
   )
 }
 
@@ -405,25 +371,116 @@ function ListSelector({
   onSelect: (id: string) => void
   solvedIds: Set<string>
 }) {
+  const meta = practiceLists.map((list) => {
+    const problems = listProblems(list.id)
+    const solved = problems.reduce(
+      (n, p) => n + (solvedIds.has(p.id) ? 1 : 0),
+      0
+    )
+    return { list, total: problems.length, solvedCount: solved }
+  })
+
+  const dropdownMeta = meta.filter((m) => m.list.id !== CORE_ID)
+  const coreMeta = meta.find((m) => m.list.id === CORE_ID) ?? meta[0]
+  const isCoreActive = activeId === CORE_ID
+  const activeDropdown =
+    dropdownMeta.find((m) => m.list.id === activeId) ?? dropdownMeta[0]
+  const dropdownValue = isCoreActive ? activeDropdown.list.id : activeId
+
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2">
-      {practiceLists.map((list) => {
-        const problems = listProblems(list.id)
-        const solved = problems.reduce(
-          (n, p) => n + (solvedIds.has(p.id) ? 1 : 0),
-          0
-        )
-        return (
-          <ListCard
-            key={list.id}
-            list={list}
-            total={problems.length}
-            solvedCount={solved}
-            active={activeId === list.id}
-            onSelect={() => onSelect(list.id)}
-          />
-        )
-      })}
+    <div className="inline-flex w-fit items-center gap-1 rounded-lg border border-border/40 bg-muted/40 p-1 dark:bg-white/[0.02]">
+      <button
+        type="button"
+        onClick={() => onSelect(CORE_ID)}
+        data-active={isCoreActive ? "" : undefined}
+        className={tabItemClass}
+      >
+        <ListEmoji id={CORE_ID} />
+        Core Skills
+        <span className="font-mono text-[11px] text-muted-foreground tabular-nums">
+          {coreMeta.solvedCount}/{coreMeta.total}
+        </span>
+      </button>
+
+      <span aria-hidden className="h-5 w-px bg-border/40" />
+
+      <Select.Root
+        value={dropdownValue}
+        onValueChange={(v) => onSelect(v as string)}
+      >
+        <Select.Trigger
+          data-active={!isCoreActive ? "" : undefined}
+          className={cn(tabItemClass, "group")}
+        >
+          <ListEmoji id={activeDropdown.list.id} />
+          <Select.Value className="text-sm font-medium tracking-[-0.01em]">
+            {(value) =>
+              dropdownMeta.find((m) => m.list.id === value)?.list.title ??
+              activeDropdown.list.title
+            }
+          </Select.Value>
+          <span className="font-mono text-[11px] text-muted-foreground tabular-nums">
+            {activeDropdown.solvedCount}/{activeDropdown.total}
+          </span>
+          <Select.Icon className="text-muted-foreground transition-transform duration-200 group-data-[popup-open]:rotate-180">
+            <IconChevronDown className="size-3.5" />
+          </Select.Icon>
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner
+            sideOffset={6}
+            alignItemWithTrigger={false}
+            className="z-50 outline-none"
+          >
+            <Select.Popup
+              className={cn(
+                "relative overflow-hidden rounded-xl border border-border/40 bg-background",
+                "max-h-[min(420px,var(--available-height))] min-w-[220px] p-1 shadow-[0_12px_40px_rgba(0,0,0,0.12)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.5)]"
+              )}
+            >
+              <Select.List className="flex flex-col gap-0.5 overflow-y-auto p-1">
+                {dropdownMeta.map(({ list, total, solvedCount }) => {
+                  const accent = ACCENT[list.accent]
+                  const percent = total > 0 ? (solvedCount / total) * 100 : 0
+                  return (
+                    <Select.Item
+                      key={list.id}
+                      value={list.id}
+                      className={cn(
+                        "relative flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-1.5 text-foreground outline-none transition-colors",
+                        "data-[highlighted]:bg-muted dark:data-[highlighted]:bg-white/[0.06]",
+                        "data-[selected]:bg-muted/70 dark:data-[selected]:bg-white/[0.04]",
+                        "data-[selected]:data-[highlighted]:bg-muted dark:data-[selected]:data-[highlighted]:bg-white/[0.08]"
+                      )}
+                    >
+                      <ListEmoji id={list.id} />
+                      <span className="flex min-w-0 flex-1 flex-col gap-1">
+                        <span className="flex items-center justify-between gap-3">
+                          <Select.ItemText className="text-sm font-medium tracking-[-0.01em]">
+                            {list.title}
+                          </Select.ItemText>
+                          <span className="font-mono text-[11px] text-muted-foreground tabular-nums">
+                            {solvedCount}/{total}
+                          </span>
+                        </span>
+                        <span className="h-1 overflow-hidden rounded-full bg-muted dark:bg-white/[0.06]">
+                          <span
+                            className={cn(
+                              "block h-full rounded-full transition-all",
+                              accent.bar
+                            )}
+                            style={{ width: `${percent}%` }}
+                          />
+                        </span>
+                      </span>
+                    </Select.Item>
+                  )
+                })}
+              </Select.List>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>
     </div>
   )
 }
