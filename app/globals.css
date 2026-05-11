@@ -126,6 +126,12 @@
   }
 }
 
+@keyframes dashflow {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

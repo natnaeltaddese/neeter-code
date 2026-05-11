@@ -1,47 +1,6 @@
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-
-const codeLines = [
-  {
-    indent: 0,
-    tokens: [
-      { text: "def ", color: "text-violet-400" },
-      { text: "twoSum", color: "text-emerald-400" },
-      { text: "(nums, target):", color: "text-white/70" },
-    ],
-  },
-  { indent: 1, tokens: [{ text: "seen = {}", color: "text-white/70" }] },
-  {
-    indent: 1,
-    tokens: [
-      { text: "for ", color: "text-violet-400" },
-      { text: "i, n ", color: "text-white/70" },
-      { text: "in ", color: "text-violet-400" },
-      { text: "enumerate(nums):", color: "text-white/70" },
-    ],
-  },
-  {
-    indent: 2,
-    tokens: [{ text: "diff = target - n", color: "text-white/70" }],
-  },
-  {
-    indent: 2,
-    tokens: [
-      { text: "if ", color: "text-violet-400" },
-      { text: "diff ", color: "text-white/70" },
-      { text: "in ", color: "text-violet-400" },
-      { text: "seen:", color: "text-white/70" },
-    ],
-  },
-  {
-    indent: 3,
-    tokens: [
-      { text: "return ", color: "text-violet-400" },
-      { text: "[seen[diff], i]", color: "text-amber-400" },
-    ],
-  },
-  { indent: 2, tokens: [{ text: "seen[n] = i", color: "text-white/70" }] },
-]
+import { HeroMiniRoadmap } from "@/components/hero-mini-roadmap"
 
 export function Hero() {
   return (
@@ -106,49 +65,9 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Right: Code editor */}
+        {/* Right: Mini roadmap (first 10 nodes) */}
         <div className="hidden animate-[fade-up_0.5s_ease_both] [animation-delay:300ms] md:block">
-          <div className="overflow-hidden rounded-xl border border-white/[0.06] bg-[#0a0a0b] shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
-            {/* Title bar */}
-            <div className="flex items-center gap-2 border-b border-white/[0.04] px-4 py-3">
-              <div className="flex gap-1.5">
-                <div className="size-2.5 rounded-full bg-white/[0.08] transition-colors hover:bg-[#ff5f57]" />
-                <div className="size-2.5 rounded-full bg-white/[0.08] transition-colors hover:bg-[#febc2e]" />
-                <div className="size-2.5 rounded-full bg-white/[0.08] transition-colors hover:bg-[#28c840]" />
-              </div>
-              <span className="ml-2 font-mono text-[11px] tracking-[0.02em] text-white/25">
-                two_sum.py
-              </span>
-            </div>
-
-            {/* Code body */}
-            <div className="p-5">
-              <pre className="font-mono text-[0.8125rem] leading-[1.75]">
-                {codeLines.map((line, i) => (
-                  <div key={i} className="flex">
-                    <span className="mr-5 w-3 shrink-0 text-right text-white/[0.12] select-none">
-                      {i + 1}
-                    </span>
-                    <span>
-                      {"  ".repeat(line.indent)}
-                      {line.tokens.map((token, j) => (
-                        <span key={j} className={token.color}>
-                          {token.text}
-                        </span>
-                      ))}
-                    </span>
-                  </div>
-                ))}
-                {/* Blinking cursor line */}
-                <div className="flex">
-                  <span className="mr-5 w-3 shrink-0 text-right text-white/[0.12] select-none">
-                    8
-                  </span>
-                  <span className="inline-block h-[1.15em] w-[0.55em] animate-pulse bg-white/40" />
-                </div>
-              </pre>
-            </div>
-          </div>
+          <HeroMiniRoadmap />
         </div>
       </div>
     </section>
