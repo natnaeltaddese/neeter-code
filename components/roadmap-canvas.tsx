@@ -266,29 +266,18 @@ function TopicNode({ data }: { data: { topic: Topic } }) {
         className="!left-1/2 !h-1 !w-1 !-translate-x-1/2 !border-0 !bg-transparent"
       />
 
-      <h3 className="text-[0.9375rem] leading-none font-semibold tracking-[-0.02em]">
+      <h3 className="text-[1.375rem] leading-tight font-semibold tracking-[-0.02em]">
         {topic.title}
       </h3>
-      <p className="mt-1.5 text-[0.6875rem] leading-[1.4] text-muted-foreground">
-        {topic.description}
-      </p>
 
-      <div className="mt-2.5">
-        <div className="mb-1 flex items-center justify-between font-mono text-[10px] text-muted-foreground">
-          <span>
-            {topic.completed}/{topic.problems}
-          </span>
-          <span>{pct}%</span>
-        </div>
-        <div className="h-1 w-full rounded-full bg-border/60 dark:bg-white/[0.06]">
-          <div
-            className={cn(
-              "h-full rounded-full transition-all duration-500",
-              pct === 100 ? "bg-emerald-500" : pct > 0 ? "bg-primary" : ""
-            )}
-            style={{ width: `${pct}%` }}
-          />
-        </div>
+      <div className="mt-3 h-1 w-full rounded-full bg-border/60 dark:bg-white/[0.06]">
+        <div
+          className={cn(
+            "h-full rounded-full transition-all duration-500",
+            pct === 100 ? "bg-emerald-500" : pct > 0 ? "bg-primary" : ""
+          )}
+          style={{ width: `${pct}%` }}
+        />
       </div>
 
       <Handle
