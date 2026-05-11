@@ -17,6 +17,7 @@ export default async function CourseOverviewPage({
   if (!firstChapter) notFound()
 
   return (
+    // in the future we can redirect to the last viewed chapter
     <CoursePageRedirect href={`/courses/${courseSlug}/${firstChapter.slug}`} />
   )
 }
